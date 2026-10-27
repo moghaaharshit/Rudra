@@ -1,0 +1,2846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#F47750" />
+<meta name="description" content="AURA — premium fashion shopping demo. Frontend only, payments simulated." />
+<title>AURA — Premium Fashion Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23F47750'/%3E%3Ctext x='32' y='44' font-family='sans-serif' font-size='34' font-weight='700' fill='%23fff' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
+<style>
+/* ============ 1. RESET & TOKENS ============ */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body,h1,h2,h3,h4,p,figure,ul,ol{margin:0}
+ul,ol{padding:0;list-style:none}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+
+:root{
+  --primary:#F47750;
+  --secondary:#F9E5DA;
+  --bg:#FFF7F2;
+  --card:#FFFFFF;
+  --text:#292929;
+  --muted:#858585;
+  --accent:#E96742;
+  --charcoal:#26262A;
+  --line:#F2E8E1;
+  --ok:#2FA36B;
+  --warn:#C98A16;
+  --danger:#DE4F45;
+  --r-lg:26px;
+  --r-md:18px;
+  --r-sm:12px;
+  --sh-sm:0 2px 10px rgba(41,41,41,.05);
+  --sh:0 10px 28px rgba(41,41,41,.08);
+  --sh-lg:0 20px 48px rgba(41,41,41,.16);
+  --max:1240px;
+  --nav-h:74px;
+}
+
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+  line-height:1.5;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(760px 420px at 12% -8%, rgba(244,119,80,.16), transparent 62%),
+    radial-gradient(620px 380px at 96% 4%, rgba(249,229,218,.9), transparent 60%),
+    radial-gradient(700px 500px at 50% 108%, rgba(249,229,218,.75), transparent 65%),
+    var(--bg);
+}
+:focus-visible{outline:2.5px solid var(--primary);outline-offset:3px;border-radius:8px}
+::selection{background:var(--primary);color:#fff}
+
+/* ============ 2. LAYOUT ============ */
+.app{min-height:100vh;display:flex;flex-direction:column}
+.main{width:100%;max-width:var(--max);margin:0 auto;padding:0 16px calc(var(--nav-h) + 42px + env(safe-area-inset-bottom));flex:1}
+.page{animation:pageIn .34s cubic-bezier(.22,.7,.3,1) both}
+.wrap{max-width:860px;margin:0 auto;width:100%}
+.stack{display:flex;flex-direction:column}
+.row{display:flex;align-items:center}
+.spacer{flex:1}
+.hide{display:none !important}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+.sec{margin-top:26px}
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sec-title{font-size:1.06rem;font-weight:700;letter-spacing:-.01em}
+.sec-sub{font-size:.78rem;color:var(--muted)}
+.link-more{display:inline-flex;align-items:center;gap:2px;font-size:.8rem;font-weight:600;color:var(--accent);background:rgba(244,119,80,.1);padding:7px 12px;border-radius:999px;transition:background .2s,transform .2s}
+.link-more:hover{background:rgba(244,119,80,.18)}
+.link-more:active{transform:scale(.95)}
+
+/* ============ 3. HEADER / SEARCH ============ */
+.hdr{position:sticky;top:0;z-index:60;background:rgba(255,247,242,.86);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.hdr-in{max-width:var(--max);margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:.16em;font-size:.94rem;flex:none}
+.logo-mark{width:32px;height:32px;border-radius:11px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;display:grid;place-items:center;font-size:.95rem;font-weight:800;letter-spacing:0;box-shadow:0 6px 16px rgba(244,119,80,.35)}
+.hdr-search{flex:1;max-width:520px;margin:0 auto}
+.hdr-links{display:none;gap:4px}
+.hdr-link{padding:9px 14px;border-radius:999px;font-size:.9rem;font-weight:600;color:#4a4a4a;transition:background .2s,color .2s}
+.hdr-link:hover{background:var(--secondary)}
+.hdr-link.active{background:var(--primary);color:#fff}
+
+.icon-btn{position:relative;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#fff;box-shadow:var(--sh-sm);transition:transform .2s,box-shadow .2s}
+.icon-btn:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.icon-btn:active{transform:scale(.92)}
+.badge{position:absolute;top:-3px;right:-3px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:var(--primary);color:#fff;font-size:.68rem;font-weight:700;display:grid;place-items:center;border:2px solid var(--bg);animation:bump .4s cubic-bezier(.34,1.56,.64,1)}
+.badge.pop{animation:bump .5s cubic-bezier(.34,1.56,.64,1)}
+
+.search{position:relative}
+.search-box{display:flex;align-items:center;gap:10px;background:var(--secondary);border-radius:999px;padding:0 16px;height:48px;transition:box-shadow .28s,background .28s,transform .28s;border:1.5px solid transparent}
+.search-box:focus-within{background:#fff;border-color:rgba(244,119,80,.55);box-shadow:0 10px 26px rgba(244,119,80,.18)}
+.search-box input{flex:1;min-width:0;background:none;border:none;outline:none;font-size:.94rem}
+.search-box input::placeholder{color:#a9a09a}
+.search-clear{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:rgba(41,41,41,.07);color:#5a5a5a}
+.suggest{position:absolute;left:0;right:0;top:calc(100% + 10px);background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-lg);padding:8px;z-index:70;overflow:hidden;animation:dropIn .22s ease both;border:1px solid var(--line)}
+.sug{display:flex;align-items:center;gap:12px;width:100%;padding:8px;border-radius:12px;text-align:left;transition:background .18s}
+.sug:hover{background:var(--bg)}
+.sug img{width:44px;height:52px;object-fit:cover;border-radius:9px;flex:none;background:var(--secondary)}
+.sug-name{font-size:.87rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sug-meta{font-size:.74rem;color:var(--muted)}
+.sug-foot{padding:10px 12px;font-size:.8rem;font-weight:600;color:var(--accent);border-top:1px solid var(--line);margin-top:6px;width:100%;text-align:left}
+
+/* ============ 4. CHIPS ============ */
+.chips{display:flex;gap:9px;overflow-x:auto;padding:14px 0 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;scroll-snap-align:start;padding:9px 15px;border-radius:999px;background:#fff;box-shadow:var(--sh-sm);font-size:.82rem;font-weight:600;color:#4d4d4d;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:color .25s,background .25s,box-shadow .25s,transform .18s}
+.chip:hover{transform:translateY(-1px)}
+.chip.active{background:var(--primary);color:#fff;box-shadow:0 8px 20px rgba(244,119,80,.32)}
+.chip.mini{padding:7px 13px;font-size:.78rem}
+
+/* ============ 5. HERO BANNER ============ */
+.hero{position:relative;margin-top:14px;border-radius:var(--r-lg);overflow:hidden;min-height:196px;display:flex;align-items:center;box-shadow:var(--sh);background:linear-gradient(120deg,#FBD9C6 0%,#F9E5DA 52%,#F3D3BE 100%)}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(70% 90% at 78% 20%,rgba(255,255,255,.5),transparent 60%);pointer-events:none}
+.hero-art{position:absolute;inset:0;animation:bgFloat 14s ease-in-out infinite alternate}
+.hero-deco{position:absolute;border-radius:50%;background:rgba(255,255,255,.42);filter:blur(.4px)}
+.hero-body{position:relative;z-index:3;padding:22px 20px 36px;max-width:66%;animation:heroText .5s cubic-bezier(.22,.7,.3,1) both}
+.hero-kicker{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);background:rgba(255,255,255,.75);padding:5px 10px;border-radius:999px;margin-bottom:10px}
+.hero-title{font-family:'Playfair Display',Georgia,serif;font-size:1.24rem;line-height:1.18;font-weight:700;letter-spacing:-.01em}
+.hero-sub{font-size:.82rem;color:#6b5b53;margin-top:6px}
+.hero-cta{margin-top:16px;display:inline-flex;align-items:center;gap:8px;background:var(--charcoal);color:#fff;padding:11px 20px;border-radius:999px;font-size:.83rem;font-weight:600;box-shadow:0 10px 22px rgba(38,38,42,.28);transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s,background .22s}
+.hero-cta:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 14px 28px rgba(38,38,42,.34)}
+.hero-cta:active{transform:scale(.94)}
+.hero-model{position:absolute;right:0;top:0;bottom:0;width:58%;z-index:2;overflow:hidden}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%;opacity:0;transition:opacity .8s ease;
+  -webkit-mask-image:linear-gradient(to right,transparent 0,rgba(0,0,0,.28) 16%,#000 46%);
+  mask-image:linear-gradient(to right,transparent 0,rgba(0,0,0,.28) 16%,#000 46%)}
+.hero-img.on{opacity:1}
+.hero-dots{position:absolute;left:20px;bottom:14px;display:flex;gap:6px;z-index:4}
+.dot{width:7px;height:7px;border-radius:999px;background:rgba(41,41,41,.2);transition:all .3s}
+.dot.active{width:22px;background:var(--charcoal)}
+@keyframes heroText{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* ============ 6. BRANDS ============ */
+.brands{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 10px;scrollbar-width:none;scroll-snap-type:x proximity}
+.brands::-webkit-scrollbar{display:none}
+.brand{flex:none;scroll-snap-align:start;width:66px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.brand-logo{width:62px;height:62px;border-radius:50%;background:#fff;box-shadow:var(--sh-sm);display:grid;place-items:center;font-weight:800;font-size:.56rem;letter-spacing:.04em;color:#3a3a3a;transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s,background .25s,color .25s;border:1.5px solid transparent}
+.brand:hover .brand-logo{transform:translateY(-4px) scale(1.04);box-shadow:var(--sh)}
+.brand.on .brand-logo{background:var(--primary);color:#fff;box-shadow:0 10px 24px rgba(244,119,80,.36);transform:scale(1.06)}
+.brand-name{font-size:.68rem;color:var(--muted);text-align:center;line-height:1.2;font-weight:600}
+.brand.on .brand-name{color:var(--accent)}
+
+/* ============ 7. PRODUCT CARD / GRID ============ */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card{background:var(--card);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh-sm);transition:transform .3s cubic-bezier(.22,.7,.3,1),box-shadow .3s;position:relative;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-5px);box-shadow:var(--sh-lg)}
+.card-media{position:relative;display:block;width:100%;aspect-ratio:3/4;overflow:hidden;background:var(--secondary)}
+.card-media img{width:100%;height:100%;object-fit:cover;transition:transform .55s cubic-bezier(.22,.7,.3,1)}
+.card:hover .card-media img{transform:scale(1.08)}
+.fav-btn{position:absolute;top:9px;right:9px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;box-shadow:var(--sh-sm);transition:transform .2s,background .2s;z-index:2}
+.fav-btn:active{transform:scale(.85)}
+.fav-btn.on{color:var(--primary)}
+.fav-btn.pop svg{animation:heartPop .5s cubic-bezier(.34,1.56,.64,1)}
+.tag{position:absolute;top:9px;left:9px;background:var(--accent);color:#fff;font-size:.66rem;font-weight:700;padding:4px 9px;border-radius:999px;z-index:2;box-shadow:0 6px 14px rgba(233,103,66,.4);letter-spacing:.02em}
+.rating-mini{position:absolute;left:9px;bottom:9px;display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.94);color:var(--text);font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:999px;z-index:2}
+.card-body{padding:11px 12px 13px;display:flex;flex-direction:column;gap:7px;flex:1}
+.card-row{display:flex;align-items:flex-start;gap:8px}
+.card-name{font-size:.85rem;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-meta{font-size:.7rem;color:var(--muted);margin-top:2px}
+.add-btn{margin-left:auto;flex:none;width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;box-shadow:0 8px 18px rgba(244,119,80,.36);transition:transform .22s cubic-bezier(.34,1.56,.64,1),background .2s}
+.add-btn:hover{background:var(--accent);transform:scale(1.1) rotate(90deg)}
+.add-btn:active{transform:scale(.88)}
+.card-price{display:flex;align-items:baseline;gap:7px;margin-top:auto}
+.price{font-size:.98rem;font-weight:700}
+.mr{font-size:.76rem;color:var(--muted);text-decoration:line-through}
+
+/* skeleton */
+.sk{border-radius:var(--r-md);background:linear-gradient(100deg,#F3EAE4 20%,#FBF3EE 40%,#F3EAE4 60%);background-size:220% 100%;animation:shimmer 1.25s linear infinite}
+.sk-card{background:var(--card);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh-sm)}
+.sk-media{aspect-ratio:3/4}
+.sk-line{height:11px;border-radius:6px;margin:12px}
+.sk-line.w60{width:60%}
+
+/* ============ 8. PRODUCT DETAILS ============ */
+.pdp{display:flex;flex-direction:column;gap:22px;padding-top:12px}
+.pdp-gallery{display:flex;flex-direction:column;gap:12px}
+.thumbs{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;animation:fadeIn .4s both}
+.thumbs::-webkit-scrollbar{display:none}
+.thumb{flex:none;width:64px;height:80px;border-radius:12px;overflow:hidden;border:2.5px solid transparent;background:var(--secondary);transition:border-color .25s,transform .2s}
+.thumb.on{border-color:var(--primary)}
+.thumb:active{transform:scale(.94)}
+.pdp-info{display:flex;flex-direction:column;gap:16px}
+.pdp-brand{font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--primary);font-weight:700}
+.pdp-title{font-size:1.42rem;font-weight:700;letter-spacing:-.02em;line-height:1.22}
+.pdp-price{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.pdp-price .price{font-size:1.5rem}
+.stars{display:inline-flex;align-items:center;gap:4px}
+.stars svg{color:#F0A93B}
+.rev-count{font-size:.78rem;color:var(--muted)}
+.desc{font-size:.88rem;color:#5c5c5c;line-height:1.7}
+.opt-label{display:flex;align-items:baseline;gap:8px;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#4a4a4a}
+.opt-label span{font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted)}
+.opt-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
+.size{min-width:46px;padding:10px 14px;border-radius:12px;background:#fff;border:1.5px solid var(--line);font-size:.84rem;font-weight:600;transition:all .22s cubic-bezier(.34,1.56,.64,1)}
+.size:hover{border-color:rgba(244,119,80,.6)}
+.size.on{background:var(--charcoal);border-color:var(--charcoal);color:#fff;transform:translateY(-2px)}
+.swatch{width:36px;height:36px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 0 0 1.5px var(--line);transition:transform .22s,box-shadow .22s}
+.swatch.on{transform:scale(1.12);box-shadow:0 0 0 2.5px var(--primary)}
+.qty{display:inline-flex;align-items:center;background:#fff;border-radius:999px;padding:5px;box-shadow:var(--sh-sm);gap:2px}
+.qty button{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;transition:background .2s,color .2s}
+.qty button:hover{background:var(--secondary)}
+.qty span{min-width:34px;text-align:center;font-weight:700;font-size:.9rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:52px;padding:0 24px;border-radius:999px;font-weight:700;font-size:.92rem;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .25s,background .25s,color .25s}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 12px 26px rgba(244,119,80,.34)}
+.btn-primary:hover{background:var(--accent);transform:translateY(-2px)}
+.btn-dark{background:var(--charcoal);color:#fff;box-shadow:0 12px 26px rgba(38,38,42,.26)}
+.btn-dark:hover{transform:translateY(-2px);box-shadow:0 16px 30px rgba(38,38,42,.32)}
+.btn-ghost{background:#fff;color:var(--text);box-shadow:var(--sh-sm)}
+.btn-ghost:hover{background:var(--secondary)}
+.btn-block{width:100%}
+.btn:disabled{opacity:.55;box-shadow:none;cursor:not-allowed;transform:none}
+
+/* ============ 9. BOTTOM NAV ============ */
+.bnav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));z-index:80;width:min(430px,calc(100% - 26px));background:rgba(30,30,34,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:999px;padding:8px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 18px 40px rgba(20,20,24,.4);animation:navUp .5s cubic-bezier(.22,.7,.3,1) both}
+.nav-item{flex:1;display:flex;align-items:center;justify-content:center;height:48px;border-radius:999px;color:rgba(255,255,255,.68);transition:color .25s,background .35s cubic-bezier(.34,1.56,.64,1),transform .2s;position:relative}
+.nav-item:hover{color:#fff}
+.nav-item:active{transform:scale(.9)}
+.nav-item.on{background:var(--primary);color:#fff;box-shadow:0 8px 20px rgba(244,119,80,.5)}
+.nav-item.on svg{animation:popIcon .45s cubic-bezier(.34,1.56,.64,1)}
+.nav-label{position:absolute;bottom:-19px;left:50%;transform:translateX(-50%);font-size:.58rem;opacity:0;transition:opacity .3s;white-space:nowrap}
+
+/* ============ 10. PAGES (cart / wishlist / orders / profile / checkout) ============ */
+.page-head{display:flex;align-items:center;gap:12px;padding:16px 0 6px;position:sticky;top:112px;z-index:40;background:linear-gradient(var(--bg) 74%,rgba(255,247,242,0))}
+.page-title{font-size:1.22rem;font-weight:700;letter-spacing:-.01em}
+.back-btn{width:38px;height:38px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:var(--sh-sm);transition:transform .2s}
+.back-btn:hover{transform:translateX(-3px)}
+.back-btn:active{transform:scale(.9)}
+
+.card-p{background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-sm);padding:14px}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:56px 20px;animation:fadeIn .45s both}
+.empty-art{width:104px;height:104px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff,var(--secondary));display:grid;place-items:center;color:var(--primary);box-shadow:var(--sh)}
+.empty h3{font-size:1.05rem;font-weight:700}
+.empty p{font-size:.85rem;color:var(--muted);max-width:290px}
+
+.line-item{display:flex;gap:13px;padding:13px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-sm);animation:slideUp .4s both}
+.line-item img{width:82px;height:104px;border-radius:12px;object-fit:cover;background:var(--secondary);flex:none}
+.li-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.li-name{font-size:.87rem;font-weight:600;line-height:1.3}
+.li-meta{font-size:.72rem;color:var(--muted)}
+.li-foot{display:flex;align-items:center;gap:10px;margin-top:auto}
+.qty-sm{display:inline-flex;align-items:center;gap:0;border:1.5px solid var(--line);border-radius:999px;padding:2px}
+.qty-sm button{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;color:#5a5a5a;transition:background .2s}
+.qty-sm button:hover{background:var(--secondary)}
+.qty-sm span{min-width:26px;text-align:center;font-size:.82rem;font-weight:700}
+.rm{margin-left:auto;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#a8a29e;transition:background .2s,color .2s}
+.rm:hover{background:#fdeceb;color:var(--danger)}
+
+.summary{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh);padding:18px;margin-top:16px}
+.sum-row{display:flex;justify-content:space-between;align-items:center;font-size:.87rem;padding:7px 0;color:#5c5c5c}
+.sum-total{display:flex;justify-content:space-between;align-items:baseline;font-size:1.05rem;font-weight:800;padding-top:12px;margin-top:8px;border-top:1px dashed var(--line)}
+.free-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(47,163,107,.1);color:var(--ok);font-size:.74rem;font-weight:700;padding:7px 12px;border-radius:999px}
+.progress{height:7px;border-radius:999px;background:var(--secondary);overflow:hidden;margin-top:10px}
+.progress i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .5s cubic-bezier(.22,.7,.3,1)}
+
+.form{display:flex;flex-direction:column;gap:13px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.76rem;font-weight:700;color:#4a4a4a;letter-spacing:.02em}
+.input{height:48px;border-radius:14px;border:1.5px solid var(--line);background:#fff;padding:0 15px;outline:none;font-size:.9rem;transition:border-color .22s,box-shadow .22s;width:100%}
+.input:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(244,119,80,.13)}
+.input.err{border-color:var(--danger);box-shadow:0 0 0 4px rgba(222,79,69,.12)}
+.err-msg{font-size:.72rem;color:var(--danger);font-weight:600}
+.form-2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+
+.pay{display:flex;align-items:center;gap:13px;padding:14px;border-radius:var(--r-md);background:#fff;border:1.5px solid var(--line);width:100%;text-align:left;transition:all .25s}
+.pay.on{border-color:var(--primary);background:linear-gradient(90deg,rgba(249,229,218,.7),#fff);box-shadow:0 8px 20px rgba(244,119,80,.14)}
+.pay-ico{width:42px;height:42px;border-radius:12px;background:var(--secondary);color:var(--accent);display:grid;place-items:center;flex:none}
+.pay-name{font-size:.88rem;font-weight:700}
+.pay-desc{font-size:.73rem;color:var(--muted)}
+.radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);margin-left:auto;flex:none;display:grid;place-items:center;transition:all .25s}
+.pay.on .radio{border-color:var(--primary)}
+.pay.on .radio::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--primary);animation:popIcon .3s}
+.demo-note{display:flex;gap:9px;align-items:flex-start;background:rgba(201,138,22,.09);border:1px solid rgba(201,138,22,.24);color:#8a6413;border-radius:14px;padding:11px 13px;font-size:.76rem;line-height:1.5}
+
+/* checkout location map (satellite, zoom locked) */
+.loc-map{height:240px;border-radius:14px;overflow:hidden;border:1.5px solid var(--line);margin-top:10px;background:var(--secondary);position:relative;z-index:1}
+.loc-map .leaflet-container{width:100%;height:100%;font-family:inherit}
+.loc-map .leaflet-control-attribution{font-size:.6rem;background:rgba(255,255,255,.8)}
+.loc-pin{position:absolute;top:10px;left:10px;z-index:500;background:rgba(30,30,34,.88);color:#fff;font-size:.72rem;font-weight:600;padding:6px 12px;border-radius:999px;pointer-events:none;display:flex;align-items:center;gap:6px}
+.loc-pin i{width:8px;height:8px;border-radius:50%;background:var(--primary);display:inline-block;animation:locPulse 1.4s ease-in-out infinite}
+@keyframes locPulse{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+
+.order{border-radius:var(--r-md);background:#fff;box-shadow:var(--sh-sm);padding:14px;display:flex;flex-direction:column;gap:12px;animation:slideUp .4s both}
+.order-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.order-id{font-size:.78rem;font-weight:700;letter-spacing:.02em}
+.status{margin-left:auto;font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 11px;border-radius:999px}
+.st-processing{background:rgba(244,119,80,.13);color:var(--accent)}
+.st-shipped{background:rgba(47,107,163,.11);color:#2F6BA3}
+.st-delivered{background:rgba(47,163,107,.12);color:var(--ok)}
+.st-cancelled{background:rgba(222,79,69,.11);color:var(--danger)}
+.order-thumbs{display:flex;gap:9px;overflow-x:auto;scrollbar-width:none}
+.order-thumbs::-webkit-scrollbar{display:none}
+.order-thumbs img{width:54px;height:68px;border-radius:10px;object-fit:cover;background:var(--secondary);flex:none}
+.order-foot{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding-top:11px;font-size:.78rem;color:var(--muted);flex-wrap:wrap}
+
+.profile-hero{display:flex;align-items:center;gap:16px;padding:20px;border-radius:var(--r-lg);background:linear-gradient(120deg,#FBD9C6,#F9E5DA 55%,#F3D3BE);box-shadow:var(--sh-sm)}
+.avatar{width:66px;height:66px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.4rem;font-weight:800;color:var(--primary);box-shadow:var(--sh);flex:none}
+.list-row{display:flex;align-items:center;gap:14px;padding:15px;background:#fff;width:100%;text-align:left;transition:background .2s}
+.list-row+.list-row{border-top:1px solid var(--line)}
+.list-row:hover{background:var(--bg)}
+.list-ico{width:40px;height:40px;border-radius:13px;background:var(--secondary);color:var(--accent);display:grid;place-items:center;flex:none}
+.list-name{font-size:.89rem;font-weight:600}
+.list-desc{font-size:.74rem;color:var(--muted)}
+.chev{margin-left:auto;color:#c3bdb8}
+
+.collection{position:relative;border-radius:var(--r-lg);overflow:hidden;min-height:158px;display:flex;align-items:flex-end;box-shadow:var(--sh-sm);transition:transform .3s cubic-bezier(.22,.7,.3,1),box-shadow .3s}
+.collection:hover{transform:translateY(-4px);box-shadow:var(--sh)}
+.collection img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.collection:hover img{transform:scale(1.07)}
+.collection::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(30,20,16,.72),rgba(30,20,16,.05) 62%)}
+.collection-body{position:relative;z-index:2;padding:16px;color:#fff;width:100%}
+.collection-name{display:block;font-size:1rem;font-weight:700}
+.collection-sub{display:block;font-size:.74rem;opacity:.88;margin-top:2px}
+
+/* confirmation */
+.confirm{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:44px 20px;animation:fadeIn .4s both}
+.confirm-ring{width:104px;height:104px}
+.confirm-ring circle{fill:none;stroke-width:5;stroke-linecap:round}
+.confirm-ring .trk{stroke:var(--secondary)}
+.confirm-ring .bar{stroke:var(--primary);stroke-dasharray:326;stroke-dashoffset:326;animation:draw .85s cubic-bezier(.22,.7,.3,1) .15s forwards}
+.confirm-tick{stroke:var(--ok);stroke-width:5;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:48;stroke-dashoffset:48;animation:draw .4s ease .75s forwards}
+.confirm h2{font-size:1.32rem;font-weight:800;letter-spacing:-.01em}
+.confirm p{font-size:.87rem;color:var(--muted);max-width:340px}
+.order-box{width:100%;max-width:420px;background:#fff;border-radius:var(--r-md);box-shadow:var(--sh-sm);padding:16px;margin-top:14px;text-align:left;display:flex;flex-direction:column;gap:9px}
+.order-box .sum-row{font-size:.83rem}
+
+/* ============ 11. TOASTS & MODAL ============ */
+.toasts{position:fixed;left:50%;transform:translateX(-50%);top:calc(14px + env(safe-area-inset-top));z-index:200;display:flex;flex-direction:column;gap:9px;width:min(400px,calc(100% - 28px));pointer-events:none}
+.toast{display:flex;align-items:center;gap:11px;background:rgba(30,30,34,.95);color:#fff;border-radius:16px;padding:12px 15px;box-shadow:0 16px 34px rgba(20,20,24,.32);animation:toastIn .38s cubic-bezier(.34,1.56,.64,1) both;font-size:.85rem;font-weight:500;backdrop-filter:blur(10px)}
+.toast.out{animation:toastOut .3s ease forwards}
+.toast-ico{width:26px;height:26px;border-radius:50%;background:var(--primary);display:grid;place-items:center;flex:none}
+
+.scrim{position:fixed;inset:0;background:rgba(28,20,16,.45);backdrop-filter:blur(4px);z-index:150;display:grid;place-items:center;padding:18px;animation:fadeIn .25s both}
+.modal{width:min(430px,100%);background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh-lg);padding:22px;animation:modalIn .38s cubic-bezier(.34,1.56,.64,1) both;max-height:88vh;overflow-y:auto}
+.modal h3{font-size:1.08rem;font-weight:800;letter-spacing:-.01em}
+.modal p{font-size:.85rem;color:var(--muted);margin-top:6px}
+
+/* ============ 12. ANIMATIONS ============ */
+@keyframes pageIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes dropIn{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes navUp{from{opacity:0;transform:translate(-50%,26px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes bump{0%{transform:scale(1)}45%{transform:scale(1.45)}100%{transform:scale(1)}}
+@keyframes popIcon{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes heartPop{0%{transform:scale(1)}35%{transform:scale(1.45)}60%{transform:scale(.88)}100%{transform:scale(1)}}
+@keyframes shimmer{from{background-position:180% 0}to{background-position:-80% 0}}
+@keyframes bgFloat{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-3%,2%,0) scale(1.08)}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-11px)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes toastIn{from{opacity:0;transform:translateY(-18px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-14px) scale(.96)}}
+@keyframes modalIn{from{opacity:0;transform:translateY(26px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes spinDot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s cubic-bezier(.22,.7,.3,1),transform .6s cubic-bezier(.22,.7,.3,1)}
+.reveal.in{opacity:1;transform:none}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}.d5{animation-delay:.25s}.d6{animation-delay:.3s}
+.floaty{animation:floaty 6s ease-in-out infinite}
+.dots-load{display:inline-flex;gap:4px}
+.dots-load i{width:6px;height:6px;border-radius:50%;background:var(--primary);animation:spinDot 1s infinite}
+.dots-load i:nth-child(2){animation-delay:.15s}
+.dots-load i:nth-child(3){animation-delay:.3s}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+  .reveal{opacity:1;transform:none}
+}
+
+/* ============ 13. RESPONSIVE ============ */
+@media (min-width:520px){ .hero{min-height:228px} .hero-title{font-size:1.5rem} .grid{gap:16px} }
+@media (min-width:640px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .pdp{flex-direction:row;gap:28px}
+  .pdp-gallery{width:44%}
+  .pdp-info{flex:1}
+  .collections-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .profile-grid{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+}
+@media (min-width:1024px){
+  :root{--nav-h:0px}
+  .main{padding:0 28px 56px}
+  .hdr-links{display:flex}
+  .bnav{display:none}
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+  .split{display:grid;grid-template-columns:minmax(0,1fr) 356px;gap:26px;align-items:start}
+  .split .summary{position:sticky;top:96px;margin-top:0}
+  .hero{min-height:326px}
+  .hero-body{max-width:50%;padding:34px 34px 46px}
+  .hero-title{font-size:2.35rem}
+  .hero-sub{font-size:.95rem}
+  .hero-model{width:46%}
+  .hero-dots{bottom:22px;left:34px}
+  .collections-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .sec{margin-top:36px}
+  .sec-title{font-size:1.2rem}
+  .pdp-title{font-size:1.9rem}
+  .page-head{top:70px}
+}
+@media (min-width:1280px){
+  .collections-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<noscript><p style="padding:24px;font-family:sans-serif">This demo needs JavaScript enabled.</p></noscript>
+
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useMemo, useRef, useCallback, createContext, useContext } = React;
+
+/* =========================================================
+   ICONS — inline SVG set (Lucide geometry)
+   ========================================================= */
+const ICON_PATHS = {
+  home:["M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8","M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"],
+  heart:["M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"],
+  layers:["M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z","m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65","m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"],
+  search:["m21 21-4.34-4.34","M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16"],
+  user:["M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2","M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8"],
+  bag:["M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z","M3 6h18","M16 10a4 4 0 0 1-8 0"],
+  star:["m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2"],
+  plus:["M5 12h14","M12 5v14"],
+  minus:["M5 12h14"],
+  trash:["M3 6h18","M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6","M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"],
+  left:["m15 18-6-6 6-6"],
+  right:["m9 18 6-6-6-6"],
+  down:["m6 9 6 6 6-6"],
+  close:["M18 6 6 18","m6 6 12 12"],
+  check:["M20 6 9 17l-5-5"],
+  truck:["M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2","M15 18H9","M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14","M16 13h.01","M8 13h.01","M16 18a2 2 0 1 0 4 0 2 2 0 0 0-4 0","M6 18a2 2 0 1 0 4 0 2 2 0 0 0-4 0"],
+  card:["M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2Z","M2 10h20"],
+  wallet:["M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5","M16 12h.01"],
+  box:["m7.5 4.27 9 5.15","M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z","m3.3 7 8.7 5 8.7-5","M12 22V12"],
+  sliders:["M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z","M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6"],
+  help:["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20","M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3","M12 17h.01"],
+  logout:["M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4","m16 17 5-5-5-5","M21 12H9"],
+  pin:["M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0","M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6"],
+  edit:["M21.17 6.81a1 1 0 0 0-3.98-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.36-1.32a2 2 0 0 0 .83-.5z","m15 5 4 4"],
+  arrow:["M5 12h14","m12 5 7 7-7 7"],
+  filter:["M3 6h18","M6 12h12","M10 18h4"],
+  mail:["M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2Z","m2 10 10 5 10-5"],
+  phone:["M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.2 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.1 9.9a16 16 0 0 0 6 6l1.26-1.26a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92"],
+  shield:["M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1 1 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z","m9 12 2 2 4-4"],
+  tag:["M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.6 8.6a2 2 0 0 0 2.8 0l7.2-7.2a2 2 0 0 0 0-2.8z","M7 7h.01"],
+  refresh:["M3 12a9 9 0 0 1 15-6.7L21 8","M21 3v5h-5","M21 12a9 9 0 0 1-15 6.7L3 16","M3 21v-5h5"],
+  eye:["M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0","M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6"]
+};
+
+function Icon({ name, size = 22, stroke = 1.8, className = '', style = {} }) {
+  const paths = ICON_PATHS[name] || [];
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round"
+      className={className} style={style} aria-hidden="true" focusable="false">
+      {paths.map((d, i) => <path key={i} d={d} />)}
+    </svg>
+  );
+}
+
+function StarRating({ value = 0, size = 14, showValue = false }) {
+  const full = Math.round(value);
+  return (
+    <span className="stars" style={{ gap: 2 }} aria-label={'Rated ' + value + ' out of 5'}>
+      {[1, 2, 3, 4, 5].map(i => (
+        <Icon key={i} name="star" size={size} stroke={1.6}
+          style={{ color: i <= full ? '#F0A93B' : '#E2DAD3', fill: i <= full ? '#F0A93B' : 'none' }} />
+      ))}
+      {showValue && <span style={{ fontSize: '.76rem', fontWeight: 700, marginLeft: 4 }}>{value.toFixed(1)}</span>}
+    </span>
+  );
+}
+
+/* =========================================================
+   SAFE STORAGE HELPER
+   ========================================================= */
+const storage = {
+  read(key, fallback) {
+    try {
+      const raw = window.localStorage.getItem(key);
+      if (raw === null) return fallback;
+      return JSON.parse(raw);
+    } catch (e) { return fallback; }
+  },
+  write(key, value) {
+    try { window.localStorage.setItem(key, JSON.stringify(value)); return true; }
+    catch (e) { return false; }
+  },
+  remove(key) { try { window.localStorage.removeItem(key); } catch (e) {} }
+};
+
+const K = { cart: 'aura.cart.v1', wish: 'aura.wishlist.v1', orders: 'aura.orders.v1', recent: 'aura.recent.v1', profile: 'aura.profile.v1' };
+
+/* =========================================================
+   FIREBASE — catalog, orders & users shared with admin.html
+   ========================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyDKB1sJhmYuO8bzg8fAQktI80j6Yt_A3t4",
+  authDomain: "aura-collections-d5245.firebaseapp.com",
+  projectId: "aura-collections-d5245",
+  storageBucket: "aura-collections-d5245.firebasestorage.app",
+  messagingSenderId: "396353601356",
+  appId: "1:396353601356:web:953378d8c852ec82e9d9e9"
+};
+let db = null;
+try {
+  if (typeof firebase !== 'undefined' && firebase.apps) {
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+  }
+} catch (e) { console.warn('Firebase init failed:', e); }
+
+function normalizeProduct(doc) {
+  const x = doc.data() || {};
+  const price = Number(x.price) || 0;
+  return {
+    id: doc.id,
+    name: x.name || 'Untitled product',
+    brand: x.brand || '',
+    category: x.category || 'Fashion',
+    price: price,
+    originalPrice: Number(x.originalPrice) || price,
+    rating: Number(x.rating) || 4.5,
+    reviews: Number(x.reviews) || 0,
+    popularity: Number(x.popularity) || 70,
+    sizes: Array.isArray(x.sizes) && x.sizes.length ? x.sizes : ['Free Size'],
+    sizePrices: {'XS':555,'S':666,'M':777,'L':888,'XL':999,'Free Size':444},
+    colors: Array.isArray(x.colors) && x.colors.length ? x.colors : ['#F47750'],
+    images: Array.isArray(x.images) ? x.images : [],
+    colorImages: (x.colorImages && typeof x.colorImages === 'object') ? x.colorImages : {},
+    colorNames: (x.colorNames && typeof x.colorNames === 'object') ? x.colorNames : {},
+    description: x.description || '',
+    collection: Array.isArray(x.collection) ? x.collection : []
+  };
+}
+
+/* Live catalog from Firestore: if the admin has added anything, the store
+   shows ONLY that data; otherwise the built-in demo catalogue is used. */
+let dbLoaded = false;
+let refreshTimer = null;
+let renderApp = function () {};
+function flagCatalogRefresh() {
+  if (!dbLoaded) return;
+  window.clearTimeout(refreshTimer);
+  refreshTimer = window.setTimeout(function () { renderApp(); }, 250);
+}
+function loadCatalog() {
+  if (!db) return Promise.resolve(false);
+  return new Promise(function (resolve) {
+    let pending = 3, finished = false;
+    const done = () => {
+      if (finished) return;
+      finished = true;
+      dbLoaded = true;
+      resolve(true);
+    };
+    const timer = window.setTimeout(done, 7000);
+    const bump = () => { pending -= 1; if (pending <= 0) { window.clearTimeout(timer); done(); } };
+    const fail = () => bump();
+    try {
+      db.collection('products').limit(500).onSnapshot(snap => {
+        if (!snap.empty) {
+          PRODUCTS = snap.docs.map(normalizeProduct);
+          PRODUCT_MAP = PRODUCTS.reduce((acc, p) => { acc[p.id] = p; return acc; }, {});
+        } else {
+          PRODUCTS = SEED.products;
+          PRODUCT_MAP = SEED.map;
+        }
+        bump(); flagCatalogRefresh();
+      }, fail);
+      db.collection('brands').limit(100).onSnapshot(snap => {
+        if (!snap.empty) {
+          BRANDS = snap.docs.map(d => {
+            const x = d.data() || {};
+            const name = x.name || 'Brand';
+            return { id: d.id, name: name, mark: x.mark || name.toUpperCase().replace(/[^A-Z0-9& ]/g, '').slice(0, 6), image: x.image || '' };
+          });
+          BRAND_NAME = {};
+          BRANDS.forEach(b => { BRAND_NAME[b.id] = b.name; });
+        } else {
+          BRANDS = SEED.brands;
+          BRAND_NAME = SEED.brandName;
+        }
+        bump(); flagCatalogRefresh();
+      }, fail);
+      db.collection('categories').limit(100).onSnapshot(snap => {
+        if (!snap.empty) {
+          const names = snap.docs.map(d => (d.data() || {}).name).filter(Boolean)
+            .filter(n => n !== 'All Categories');
+          if (names.length) CATEGORIES = ['All Categories'].concat(names);
+        } else {
+          CATEGORIES = SEED.categories;
+        }
+        bump(); flagCatalogRefresh();
+      }, fail);
+    } catch (e) { window.clearTimeout(timer); done(); }
+  });
+}
+
+/* =========================================================
+   PRODUCT DATA
+   ========================================================= */
+const U = (id, w = 720) => 'https://images.unsplash.com/photo-' + id + '?auto=format&fit=crop&w=' + w + '&q=70';
+
+const FALLBACK_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#FBD9C6'/><stop offset='1' stop-color='#F47750'/></linearGradient></defs><rect width='300' height='400' fill='url(#g)'/><text x='150' y='210' font-family='Helvetica,Arial' font-size='26' font-weight='bold' fill='#ffffff' text-anchor='middle' letter-spacing='6'>AURA</text></svg>"
+);
+
+function Img({ src, alt, className = '', style = {} }) {
+  const [failed, setFailed] = useState(false);
+  return (
+    <img src={failed || !src ? FALLBACK_IMG : src} alt={alt} className={className} style={style}
+      loading="lazy" decoding="async" onError={() => setFailed(true)} />
+  );
+}
+
+const COLORS_PEACH = '#F47750', COLORS_SAND = '#E7D2B8', COLORS_BLACK = '#2B2B2B', COLORS_IVORY = '#F5EFE6',
+  COLORS_NAVY = '#2E3B55', COLORS_OLIVE = '#6B7A54', COLORS_PINK = '#F0A9B8', COLORS_GREY = '#9AA0A6';
+
+const APPAREL = ['XS', 'S', 'M', 'L', 'XL'];
+const SHOE_SIZES = ['6', '7', '8', '9', '10', '11'];
+const ONE = ['Free Size'];
+
+let PRODUCTS = [
+  {
+    id: 'p1', name: 'Lightweight Jacket', brand: 'Zara', category: 'Jackets', price: 249, originalPrice: 320,
+    rating: 4.8, reviews: 312, popularity: 98, sizes: APPAREL, colors: [COLORS_SAND, COLORS_BLACK, COLORS_IVORY],
+    images: [U('1591047139829-d91aecb6caea'), U('1539109136881-3be0616acf4b'), U('1551028719-00167b16eac5')],
+    description: 'A feather-light technical jacket cut for effortless layering. Water-resistant shell, breathable lining and a relaxed silhouette that works from morning commutes to late dinners.',
+    collection: ['winter-layers', 'new-in']
+  },
+  {
+    id: 'p2', name: 'Electric Power Suit', brand: 'Zara', category: 'Fashion', price: 386, originalPrice: 460,
+    rating: 4.9, reviews: 204, popularity: 95, sizes: APPAREL, colors: [COLORS_PEACH, COLORS_BLACK, COLORS_NAVY],
+    images: [U('1539109136881-3be0616acf4b'), U('1509631179647-0177331693ae'), U('1503342217505-b0a15ec3261c')],
+    description: 'Sharp shoulders, sculpted lapels and a fluid drape give this power suit its confident line. Tailored in a premium stretch suiting with a satin-finish lining.',
+    collection: ['street-edit', 'new-in']
+  },
+  {
+    id: 'p3', name: "Premium Women's Jacket", brand: 'H&M', category: 'Jackets', price: 199, originalPrice: 280,
+    rating: 4.6, reviews: 158, popularity: 88, sizes: APPAREL, colors: [COLORS_IVORY, COLORS_PINK, COLORS_BLACK],
+    images: [U('1551028719-00167b16eac5'), U('1483985988355-763728e1935b'), U('1509631179647-0177331693ae')],
+    description: 'An oversized wool-blend jacket with a softly dropped shoulder and hidden placket. The easiest way to make a plain outfit look considered.',
+    collection: ['winter-layers']
+  },
+  {
+    id: 'p4', name: 'Casual Fashion Outfit', brand: 'Zara', category: 'Fashion', price: 159, originalPrice: 210,
+    rating: 4.4, reviews: 96, popularity: 82, sizes: APPAREL, colors: [COLORS_SAND, COLORS_GREY, COLORS_OLIVE],
+    images: [U('1509631179647-0177331693ae'), U('1503342217505-b0a15ec3261c'), U('1594633312681-425c7b97ccd1')],
+    description: 'A complete off-duty look in one tap: relaxed tee, high-rise wide-leg trouser and a soft knit cardigan, colour-matched and ready to wear.',
+    collection: ['new-in', 'summer-edit']
+  },
+  {
+    id: 'p5', name: "Men's Signature Sneakers", brand: 'Nike', category: "Men's Sneakers", price: 120, originalPrice: 165,
+    rating: 4.7, reviews: 428, popularity: 99, sizes: SHOE_SIZES, colors: [COLORS_IVORY, COLORS_BLACK, COLORS_PEACH],
+    images: [U('1542291026-7eec264c27ff'), U('1549298916-b41d501d3772'), U('1600185365483-26d7a4cc7519')],
+    description: 'A low-profile court silhouette with a cushioned foam midsole and breathable knit upper. Built for daily miles and styled for anything after.',
+    collection: ['sneaker-drops']
+  },
+  {
+    id: 'p6', name: 'Premium Hoodie', brand: 'Adidas', category: 'Hoodies', price: 89, originalPrice: 130,
+    rating: 4.5, reviews: 267, popularity: 90, sizes: APPAREL, colors: [COLORS_BLACK, COLORS_SAND, COLORS_OLIVE],
+    images: [U('1556821840-3a63f95609a7'), U('1620799140408-edc6dcb6d633'), U('1576566588028-4147f3842f27')],
+    description: 'Heavyweight 420gsm brushed-back fleece with a double-layer hood and ribbed cuffs. Warm, structured and cut to keep its shape wash after wash.',
+    collection: ['street-edit', 'winter-layers']
+  },
+  {
+    id: 'p7', name: 'Oversized Zip Hoodie', brand: 'Puma', category: 'Hoodies', price: 75, originalPrice: 99,
+    rating: 4.3, reviews: 121, popularity: 76, sizes: APPAREL, colors: [COLORS_GREY, COLORS_BLACK, COLORS_PEACH],
+    images: [U('1620799140408-edc6dcb6d633'), U('1556821840-3a63f95609a7'), U('1576566588028-4147f3842f27')],
+    description: 'Boxy, heavyweight and made to layer. A full-length zip, split kangaroo pockets and a dropped shoulder give it the street-ready shape.',
+    collection: ['street-edit']
+  },
+  {
+    id: 'p8', name: 'Studio Court Sneakers', brand: 'Puma', category: "Men's Sneakers", price: 110, originalPrice: 145,
+    rating: 4.4, reviews: 88, popularity: 72, sizes: SHOE_SIZES, colors: [COLORS_IVORY, COLORS_NAVY],
+    images: [U('1491553895911-0055eca6402d'), U('1595950653106-6c9ebd614d3a'), U('1549298916-b41d501d3772')],
+    description: 'A clean leather court shoe with a padded collar and cupsole grip. Minimal branding, maximum versatility.',
+    collection: ['sneaker-drops']
+  },
+  {
+    id: 'p9', name: 'Runfast Runner', brand: 'Nike', category: "Men's Sneakers", price: 135, originalPrice: 180,
+    rating: 4.8, reviews: 356, popularity: 93, sizes: SHOE_SIZES, colors: [COLORS_PEACH, COLORS_BLACK, COLORS_IVORY],
+    images: [U('1542291026-7eec264c27ff'), U('1549298916-b41d501d3772'), U('1491553895911-0055eca6402d')],
+    description: 'Responsive foam midsole, engineered mesh upper and a rocker geometry that keeps your stride smooth from first kilometre to long runs.',
+    collection: ['sneaker-drops']
+  },
+  {
+    id: 'p10', name: 'Aero High-Top Sneakers', brand: 'Apex', category: "Men's Sneakers", price: 98, originalPrice: 130,
+    rating: 4.2, reviews: 64, popularity: 68, sizes: SHOE_SIZES, colors: [COLORS_BLACK, COLORS_IVORY],
+    images: [U('1600185365483-26d7a4cc7519'), U('1595950653106-6c9ebd614d3a'), U('1606107557195-0e29a4b5b4aa')],
+    description: 'A high-top court classic with ankle padding and a grippy outsole. Pairs just as well with tailoring as it does with denim.',
+    collection: ['sneaker-drops']
+  },
+  {
+    id: 'p11', name: 'Tailored Wool Blazer', brand: 'Zara', category: 'Fashion', price: 210, originalPrice: 290,
+    rating: 4.6, reviews: 143, popularity: 84, sizes: APPAREL, colors: [COLORS_NAVY, COLORS_BLACK, COLORS_SAND],
+    images: [U('1539109136881-3be0616acf4b'), U('1509631179647-0177331693ae'), U('1434389677669-e08b4cac3105')],
+    description: 'A single-breasted blazer in Italian wool blend with notch lapels and a half lining. Sharp, soft and endlessly re-wearable.',
+    collection: ['street-edit', 'new-in']
+  },
+  {
+    id: 'p12', name: 'Satin Slip Dress', brand: 'H&M', category: "Women's Wear", price: 145, originalPrice: 190,
+    rating: 4.7, reviews: 231, popularity: 91, sizes: APPAREL, colors: [COLORS_PINK, COLORS_BLACK, COLORS_IVORY],
+    images: [U('1595777457583-95e059d581b8'), U('1515372039744-b8f02a3ae446'), U('1572804013309-59a88b7e92f1')],
+    description: 'Cut on the bias from a fluid satin weave with adjustable straps and a cowl back. Dress it up with a blazer or keep it minimal.',
+    collection: ['summer-edit', 'new-in']
+  },
+  {
+    id: 'p13', name: 'Floral Summer Dress', brand: 'H&M', category: "Women's Wear", price: 119, originalPrice: 165,
+    rating: 4.4, reviews: 176, popularity: 79, sizes: APPAREL, colors: [COLORS_PINK, COLORS_IVORY],
+    images: [U('1572804013309-59a88b7e92f1'), U('1515372039744-b8f02a3ae446'), U('1509631179647-0177331693ae')],
+    description: 'A mid-length midi in a soft printed chiffon with a smocked bodice and flutter sleeves. Made for warm afternoons and long lunches.',
+    collection: ['summer-edit']
+  },
+  {
+    id: 'p14', name: 'Cotton Kurta Set', brand: 'Zara', category: "Women's Wear", price: 175, originalPrice: 225,
+    rating: 4.6, reviews: 134, popularity: 81, sizes: APPAREL, colors: [COLORS_IVORY, COLORS_PEACH, COLORS_OLIVE],
+    images: [U('1509631179647-0177331693ae'), U('1515372039744-b8f02a3ae446'), U('1594633312681-425c7b97ccd1')],
+    description: 'A breathable cotton kurta with tapered palazzo pants, mirror-work detailing at the neckline and a soft washed finish.',
+    collection: ['summer-edit', 'new-in']
+  },
+  {
+    id: 'p15', name: 'Ribbed Knit Cardigan', brand: 'Zara', category: "Women's Wear", price: 129, originalPrice: 170,
+    rating: 4.5, reviews: 98, popularity: 75, sizes: APPAREL, colors: [COLORS_SAND, COLORS_IVORY, COLORS_OLIVE],
+    images: [U('1434389677669-e08b4cac3105'), U('1509631179647-0177331693ae'), U('1515372039744-b8f02a3ae446')],
+    description: 'A fine-gauge ribbed cardigan in a merino blend with a cropped fit and shell buttons. The layer you will reach for every single day.',
+    collection: ['winter-layers']
+  },
+  {
+    id: 'p16', name: 'Leather Biker Jacket', brand: 'Apex', category: 'Jackets', price: 320, originalPrice: 420,
+    rating: 4.7, reviews: 189, popularity: 87, sizes: APPAREL, colors: [COLORS_BLACK, COLORS_SAND],
+    images: [U('1548883354-7622d03aca27'), U('1551028719-00167b16eac5'), U('1591047139829-d91aecb6caea')],
+    description: 'Supple lambskin with an asymmetric zip, quilted shoulders and a belt you can knot or leave open. Ages beautifully.',
+    collection: ['street-edit']
+  },
+  {
+    id: 'p17', name: 'Bomber Jacket', brand: 'Adidas', category: 'Jackets', price: 165, originalPrice: 220,
+    rating: 4.4, reviews: 112, popularity: 77, sizes: APPAREL, colors: [COLORS_OLIVE, COLORS_BLACK, COLORS_NAVY],
+    images: [U('1591047139829-d91aecb6caea'), U('1548883354-7622d03aca27'), U('1539109136881-3be0616acf4b')],
+    description: 'A classic MA-1 shape in a matte technical twill with ribbed collar, cuff and hem plus two welt pockets.',
+    collection: ['street-edit', 'winter-layers']
+  },
+  {
+    id: 'p18', name: 'Puffer Down Jacket', brand: 'Apex', category: 'Jackets', price: 289, originalPrice: 380,
+    rating: 4.8, reviews: 143, popularity: 89, sizes: APPAREL, colors: [COLORS_BLACK, COLORS_IVORY, COLORS_PEACH],
+    images: [U('1551028719-00167b16eac5'), U('1591047139829-d91aecb6caea'), U('1539109136881-3be0616acf4b')],
+    description: 'Recycled 700-fill insulation wrapped in a water-repellent shell, with a two-way zip and a packable stuff pocket.',
+    collection: ['winter-layers', 'new-in']
+  },
+  {
+    id: 'p19', name: 'Graphic Print Tee', brand: 'Puma', category: 'Fashion', price: 45, originalPrice: 65,
+    rating: 4.1, reviews: 87, popularity: 66, sizes: APPAREL, colors: [COLORS_IVORY, COLORS_BLACK, COLORS_PEACH],
+    images: [U('1576566588028-4147f3842f27'), U('1618354691373-d851c5c3a990'), U('1554568218-0f1715e72254')],
+    description: 'A mid-weight combed cotton tee with a soft hand-feel print and a slightly boxy cut. The base layer that carries everything.',
+    collection: ['street-edit', 'summer-edit']
+  },
+  {
+    id: 'p20', name: 'Cotton Crew Socks (3 Pack)', brand: 'Nike', category: 'Accessories', price: 25, originalPrice: 32,
+    rating: 4.5, reviews: 210, popularity: 70, sizes: ONE, colors: [COLORS_IVORY, COLORS_BLACK, COLORS_PEACH],
+    images: [U('1523381210434-271e8be1f52b'), U('1560243563-062bfc001d68'), U('1594633312681-425c7b97ccd1')],
+    description: 'Three pairs of cushioned crew socks in combed cotton with a reinforced heel and arch support. Everyday essentials, done properly.',
+    collection: ['street-edit']
+  },
+  {
+    id: 'p21', name: 'Leather Belt', brand: 'Zara', category: 'Accessories', price: 39, originalPrice: 55,
+    rating: 4.3, reviews: 74, popularity: 63, sizes: ONE, colors: [COLORS_BLACK, COLORS_SAND],
+    images: [U('1560243563-062bfc001d68'), U('1523381210434-271e8be1f52b'), U('1594633312681-425c7b97ccd1')],
+    description: 'Full-grain leather with a brushed metal buckle and a 3.5cm width that sits neatly on the waist.',
+    collection: ['street-edit']
+  },
+  {
+    id: 'p22', name: 'Canvas Tote Bag', brand: 'H&M', category: 'Accessories', price: 55, originalPrice: 70,
+    rating: 4.6, reviews: 132, popularity: 78, sizes: ONE, colors: [COLORS_SAND, COLORS_IVORY, COLORS_OLIVE],
+    images: [U('1483985988355-763728e1935b'), U('1553062407-98eeb64c6a62'), U('1584917865442-de89df76afd3')],
+    description: 'Heavy 16oz canvas tote with an inner zip pocket and reinforced handles. Fits a laptop, a water bottle and a change of plans.',
+    collection: ['summer-edit', 'new-in']
+  },
+  {
+    id: 'p23', name: 'Aviator Sunglasses', brand: 'Puma', category: 'Accessories', price: 89, originalPrice: 120,
+    rating: 4.4, reviews: 96, popularity: 74, sizes: ONE, colors: [COLORS_BLACK, COLORS_SAND],
+    images: [U('1511499767150-a48a237f0083'), U('1572635196237-14b3f281503f'), U('1577803645773-f96470509666')],
+    description: 'A classic teardrop frame in lightweight metal with polarised lenses and adjustable silicone nose pads.',
+    collection: ['summer-edit']
+  },
+  {
+    id: 'p24', name: 'Ribbed Beanie', brand: 'Adidas', category: 'Accessories', price: 19, originalPrice: 28,
+    rating: 4.2, reviews: 58, popularity: 58, sizes: ONE, colors: [COLORS_BLACK, COLORS_OLIVE, COLORS_PINK],
+    images: [U('1571945153237-4929e783af4a'), U('1523381210434-271e8be1f52b'), U('1594633312681-425c7b97ccd1')],
+    description: 'Fine-rib knit in a soft lambswool blend with a folded cuff. Warm, minimal and packs down to nothing.',
+    collection: ['winter-layers']
+  },
+  {
+    id: 'p25', name: 'Cargo Utility Trousers', brand: 'Nike', category: 'Fashion', price: 139, originalPrice: 180,
+    rating: 4.5, reviews: 168, popularity: 86, sizes: APPAREL, colors: [COLORS_OLIVE, COLORS_BLACK, COLORS_SAND],
+    images: [U('1560243563-062bfc001d68'), U('1509631179647-0177331693ae'), U('1594633312681-425c7b97ccd1')],
+    description: 'Relaxed straight-leg cargos in a cotton ripstop with six functional pockets and an adjustable hem.',
+    collection: ['street-edit', 'new-in']
+  },
+  {
+    id: 'p26', name: 'Mesh Sports Cap', brand: 'Apex', category: 'Accessories', price: 29, originalPrice: 40,
+    rating: 4.0, reviews: 44, popularity: 55, sizes: ONE, colors: [COLORS_IVORY, COLORS_BLACK, COLORS_PEACH],
+    images: [U('1571945153237-4929e783af4a'), U('1523381210434-271e8be1f52b'), U('1560243563-062bfc001d68')],
+    description: 'Breathable mesh back, curved brim and a quick-release strap for an easy custom fit.',
+    collection: ['sneaker-drops', 'summer-edit']
+  },
+  {
+    id: 'p27', name: 'Zip-Through Hoodie', brand: 'Nike', category: 'Hoodies', price: 105, originalPrice: 145,
+    rating: 4.6, reviews: 189, popularity: 85, sizes: APPAREL, colors: [COLORS_GREY, COLORS_NAVY, COLORS_BLACK],
+    images: [U('1556821840-3a63f95609a7'), U('1576566588028-4147f3842f27'), U('1620799140408-edc6dcb6d633')],
+    description: 'A mid-layer fleece hoodie with a lined hood, full zip and a clean athletic cut that layers under a shell in winter.',
+    collection: ['winter-layers', 'new-in']
+  },
+  {
+    id: 'p28', name: 'Cropped Puffer Jacket', brand: 'H&M', category: "Women's Wear", price: 149, originalPrice: 199,
+    rating: 4.5, reviews: 127, popularity: 83, sizes: APPAREL, colors: [COLORS_IVORY, COLORS_PINK, COLORS_BLACK],
+    images: [U('1539109136881-3be0616acf4b'), U('1551028719-00167b16eac5'), U('1591047139829-d91aecb6caea')],
+    description: 'A cropped, glossy quilted puffer with a sherpa-trimmed collar. Warm, playful and easy to style with high-waisted denim.',
+    collection: ['winter-layers', 'new-in']
+  }
+];
+
+let PRODUCT_MAP = PRODUCTS.reduce((acc, p) => { acc[p.id] = p; return acc; }, {});
+
+let CATEGORIES = ['All Categories', "Men's Sneakers", 'Fashion', 'Hoodies', "Women's Wear", 'Jackets', 'Accessories'];
+const CAT_ICON = { 'All Categories': 'layers', "Men's Sneakers": 'bag', Fashion: 'tag', Hoodies: 'star', "Women's Wear": 'heart', Jackets: 'shield', Accessories: 'wallet' };
+let BRAND_NAME = { zara: 'Zara', nike: 'Nike', puma: 'Puma', adidas: 'Adidas', apex: 'Apex', hm: 'H&M' };
+/* name = canonical value used for filtering (must match product.brand)
+   mark = the wordmark shown inside the circular logo */
+let BRANDS = [
+  { id: 'zara', name: BRAND_NAME.zara, mark: 'ZARA' },
+  { id: 'nike', name: BRAND_NAME.nike, mark: 'NIKE' },
+  { id: 'puma', name: BRAND_NAME.puma, mark: 'PUMA' },
+  { id: 'adidas', name: BRAND_NAME.adidas, mark: 'ADIDAS' },
+  { id: 'apex', name: BRAND_NAME.apex, mark: 'Apex' },
+  { id: 'hm', name: BRAND_NAME.hm, mark: 'H&M' }
+];
+
+/* Built-in demo catalogue — used only while Firestore has no data */
+const SEED = {
+  products: PRODUCTS, map: PRODUCT_MAP,
+  categories: CATEGORIES.slice(),
+  brands: BRANDS.slice(),
+  brandName: Object.assign({}, BRAND_NAME)
+};
+
+const BANNERS = [
+  { id: 'b1', kicker: 'Limited time', title: 'Sale: up to 40% off', sub: 'New styles added', cta: 'Shop Now', img: U('1529139574466-a303027c1d8b', 620), filter: { cat: 'Fashion' } },
+  { id: 'b2', kicker: 'Sneaker drop', title: 'Fresh kicks, fresh week', sub: 'Up to 30% off sneakers', cta: 'Explore', img: U('1600185365483-26d7a4cc7519', 620), filter: { cat: "Men's Sneakers" } },
+  { id: 'b3', kicker: 'Winter edit', title: 'Layer up in warm layers', sub: 'Jackets & hoodies from $75', cta: 'Shop Now', img: U('1539109136881-3be0616acf4b', 620), filter: { cat: 'Jackets' } }
+];
+
+const COLLECTIONS = [
+  { id: 'new-in', name: 'New In', sub: 'Just landed this week', img: U('1503342217505-b0a15ec3261c', 620) },
+  { id: 'summer-edit', name: 'Summer Edit', sub: 'Breezy favourites', img: U('1595777457583-95e059d581b8', 620) },
+  { id: 'street-edit', name: 'Street Edit', sub: 'Oversized & layered', img: U('1618354691373-d851c5c3a990', 620) },
+  { id: 'sneaker-drops', name: 'Sneaker Drops', sub: 'Fresh pairs weekly', img: U('1542291026-7eec264c27ff', 620) },
+  { id: 'winter-layers', name: 'Winter Layers', sub: 'Warm & structured', img: U('1591047139829-d91aecb6caea', 620) }
+];
+
+const PRICE_BANDS = [
+  { id: 'any', label: 'Any price', min: 0, max: Infinity },
+  { id: 'u50', label: 'Under $50', min: 0, max: 49 },
+  { id: '50-100', label: '$50 – $100', min: 50, max: 100 },
+  { id: '100-200', label: '$100 – $200', min: 100, max: 200 },
+  { id: 'o200', label: 'Over $200', min: 200, max: Infinity }
+];
+
+const SORTS = [
+  { id: 'popular', label: 'Popularity' },
+  { id: 'low', label: 'Price: Low to High' },
+  { id: 'high', label: 'Price: High to Low' },
+  { id: 'rating', label: 'Top Rated' }
+];
+
+const money = n => '$' + n.toFixed(0);
+const todayISO = () => new Date().toISOString();
+
+/* =========================================================
+   APP CONTEXT
+   ========================================================= */
+const AppCtx = createContext(null);
+const useApp = () => useContext(AppCtx);
+
+const DEFAULT_PROFILE = { name: 'Aditi Sharma', email: 'aditi.sharma@example.com', phone: '+1 415 555 0134', city: 'San Francisco' };
+
+function AppProvider({ children, catalogVersion = 0 }) {
+  const [cart, setCart] = useState(() => storage.read(K.cart, []));
+  const [wishlist, setWishlist] = useState(() => storage.read(K.wish, []));
+  const [orders, setOrders] = useState(() => storage.read(K.orders, null));
+  const [recent, setRecent] = useState(() => storage.read(K.recent, []));
+  const [profile, setProfile] = useState(() => Object.assign({}, DEFAULT_PROFILE, storage.read(K.profile, {})));
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [toasts, setToasts] = useState([]);
+
+  useEffect(() => { storage.write(K.cart, cart); }, [cart]);
+  useEffect(() => { storage.write(K.wish, wishlist); }, [wishlist]);
+  useEffect(() => { if (orders) storage.write(K.orders, orders); }, [orders]);
+  useEffect(() => { storage.write(K.recent, recent); }, [recent]);
+  useEffect(() => { storage.write(K.profile, profile); }, [profile]);
+
+  /* ---- Firestore: register/update this shopper + watch admin flag ---- */
+  useEffect(() => {
+    if (!db || !profile.email) { setIsAdmin(false); return; }
+    const key = String(profile.email).trim().toLowerCase();
+    if (!key) { setIsAdmin(false); return; }
+    db.collection('users').doc(key).set({
+      name: profile.name || '', email: profile.email, phone: profile.phone || '',
+      city: profile.city || '',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true }).catch(() => {});
+    let unsub;
+    try {
+      unsub = db.collection('users').doc(key).onSnapshot(snap => {
+        setIsAdmin(!!(snap.exists && snap.data() && snap.data().isAdmin));
+      }, () => {});
+    } catch (e) { return; }
+    return () => { if (unsub) unsub(); };
+  }, [profile.email, profile.name, profile.phone, profile.city]);
+
+  /* ---- Firestore: pull live status updates for my orders (shipped/completed/rejected by admin) ---- */
+  useEffect(() => {
+    if (!db || !profile.email) return;
+    const key = String(profile.email).trim().toLowerCase();
+    let unsub;
+    try {
+      unsub = db.collection('orders').where('userKey', '==', key)
+        .onSnapshot(snap => {
+          const remote = snap.docs.map(d => {
+            const o = d.data() || {};
+            return {
+              id: o.id || d.id, date: o.date, status: o.status || 'Processing',
+              payment: o.payment || '', total: Number(o.total) || 0,
+              items: Array.isArray(o.items) ? o.items : [], address: o.address || '',
+              customerName: o.customerName || '', customerEmail: o.customerEmail || '',
+              customerPhone: o.customerPhone || ''
+            };
+          });
+          if (!remote.length) return;
+          setOrders(prev => {
+            const byId = {};
+            (prev || []).forEach(o => { byId[o.id] = o; });
+            let changed = false;
+            remote.forEach(r => {
+              const cur = byId[r.id];
+              if (!cur) { byId[r.id] = r; changed = true; }
+              else if (cur.status !== r.status) { byId[r.id] = Object.assign({}, cur, { status: r.status }); changed = true; }
+            });
+            if (!changed) return prev;
+            return Object.keys(byId).map(k => byId[k]);
+          });
+        }, () => {});
+    } catch (e) { return; }
+    return () => { if (unsub) unsub(); };
+  }, [profile.email]);
+
+  const toast = useCallback((message, iconName = 'check') => {
+    const id = Math.random().toString(36).slice(2);
+    setToasts(t => [...t.slice(-2), { id, message, iconName }]);
+    window.setTimeout(() => {
+      setToasts(t => t.map(x => (x.id === id ? Object.assign({}, x, { out: true }) : x)));
+      window.setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 320);
+    }, 2400);
+  }, []);
+
+  const cartCount = useMemo(() => cart.reduce((s, i) => s + i.qty, 0), [cart]);
+
+  const addToCart = useCallback((product, opts = {}) => {
+    const size = opts.size || (product.sizes && product.sizes[0]);
+    const color = opts.color || (product.colors && product.colors[0]);
+    const qty = opts.qty || 1;
+    /* size-wise price: caller may pass opts.price for the chosen size */
+    const sp = product.sizePrices && Number(product.sizePrices[size]);
+    const price = Number(opts.price) > 0 ? Number(opts.price) : (sp > 0 ? sp : (Number(product.price) || 0));
+    const key = product.id + '|' + size + '|' + color;
+    setCart(prev => {
+      const found = prev.find(i => i.key === key);
+      if (found) return prev.map(i => (i.key === key ? Object.assign({}, i, { qty: Math.min(i.qty + qty, 20), price: price }) : i));
+      return prev.concat([{ key, id: product.id, size, color, qty, price }]);
+    });
+    toast('Added to cart successfully!', 'bag');
+  }, [toast]);
+
+  const updateQty = useCallback((key, qty) => {
+    setCart(prev => qty <= 0 ? prev.filter(i => i.key !== key) : prev.map(i => (i.key === key ? Object.assign({}, i, { qty: Math.min(qty, 20) }) : i)));
+  }, []);
+
+  const removeFromCart = useCallback((key) => {
+    setCart(prev => prev.filter(i => i.key !== key));
+    toast('Product removed from cart', 'trash');
+  }, [toast]);
+
+  const clearCart = useCallback(() => setCart([]), []);
+
+  const toggleWish = useCallback((id) => {
+    setWishlist(prev => {
+      const has = prev.indexOf(id) > -1;
+      toast(has ? 'Removed from wishlist' : 'Added to your wishlist', has ? 'trash' : 'heart');
+      return has ? prev.filter(x => x !== id) : prev.concat([id]);
+    });
+  }, [toast]);
+
+  const viewProduct = useCallback((id) => {
+    setRecent(prev => [id].concat(prev.filter(x => x !== id)).slice(0, 12));
+  }, []);
+
+  const placeOrder = useCallback((payload) => {
+    const order = Object.assign({
+      id: 'AU' + String(Date.now()).slice(-7),
+      date: todayISO(),
+      status: 'Processing'
+    }, payload);
+    setOrders(prev => {
+      const base = prev && prev.length ? prev : SAMPLE_ORDERS;
+      return [order].concat(base);
+    });
+    /* push to Firestore so the admin panel receives it live */
+    if (db) {
+      const userKey = String(profile.email || (payload && payload.customerEmail) || '').trim().toLowerCase();
+      db.collection('orders').doc(order.id).set({
+        id: order.id, userKey: userKey,
+        date: order.date, status: order.status,
+        payment: order.payment || '', total: order.total || 0,
+        items: order.items || [], address: order.address || '',
+        customerName: payload.customerName || profile.name || '',
+        customerEmail: payload.customerEmail || profile.email || '',
+        customerPhone: payload.customerPhone || profile.phone || '',
+        geo: payload.geo || null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(e => console.warn('order sync failed', e));
+    }
+    return order;
+  }, [profile]);
+
+  const cartLines = useMemo(() => cart.map(line => {
+    const p = PRODUCT_MAP[line.id];
+    const unit = Number(line.price) > 0 ? Number(line.price) : (p ? p.price : 0);
+    return Object.assign({}, line, { product: p, unitPrice: unit, lineTotal: p ? unit * line.qty : 0 });
+  }).filter(l => l.product), [cart, catalogVersion]);
+
+  const subtotal = useMemo(() => cartLines.reduce((s, l) => s + l.lineTotal, 0), [cartLines]);
+  const savings = useMemo(() => cartLines.reduce((s, l) => s + Math.max(0, l.product.originalPrice - l.unitPrice) * l.qty, 0), [cartLines]);
+  const shipping = subtotal === 0 || subtotal >= 150 ? 0 : 9;
+  const total = subtotal + shipping;
+
+  const value = {
+    cart, cartLines, cartCount, subtotal, shipping, total, savings,
+    addToCart, updateQty, removeFromCart, clearCart,
+    wishlist, toggleWish,
+    orders, placeOrder, setOrders,
+    recent, viewProduct,
+    profile, setProfile,
+    isAdmin, catalogVersion,
+    toasts, toast
+  };
+  return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
+}
+
+const SAMPLE_ORDERS = [
+  {
+    id: 'AU4471902', date: '2026-09-21T10:24:00.000Z', status: 'Delivered', payment: 'UPI (demo)',
+    total: 438, items: [{ id: 'p1', qty: 1, size: 'M', color: COLORS_SAND }, { id: 'p6', qty: 1, size: 'L', color: COLORS_BLACK }]
+  },
+  {
+    id: 'AU4468225', date: '2026-09-12T16:40:00.000Z', status: 'Shipped', payment: 'Card (demo)',
+    total: 255, items: [{ id: 'p5', qty: 1, size: '9', color: COLORS_IVORY }, { id: 'p22', qty: 1, size: 'Free Size', color: COLORS_SAND }]
+  },
+  {
+    id: 'AU4450311', date: '2026-08-29T08:05:00.000Z', status: 'Cancelled', payment: 'Cash on Delivery',
+    total: 149, items: [{ id: 'p12', qty: 1, size: 'S', color: COLORS_PINK }]
+  }
+];
+
+/* =========================================================
+   HOOKS
+   ========================================================= */
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(() => window.matchMedia ? window.matchMedia(query).matches : false);
+  useEffect(() => {
+    if (!window.matchMedia) return;
+    const mq = window.matchMedia(query);
+    const handler = e => setMatches(e.matches);
+    setMatches(mq.matches);
+    mq.addEventListener ? mq.addEventListener('change', handler) : mq.addListener(handler);
+    return () => { mq.removeEventListener ? mq.removeEventListener('change', handler) : mq.removeListener(handler); };
+  }, [query]);
+  return matches;
+}
+
+function useReveal() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const seen = new WeakSet();
+    const supported = 'IntersectionObserver' in window;
+    const io = supported ? new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
+      });
+    }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' }) : null;
+
+    const scan = () => {
+      const els = Array.prototype.slice.call(root.querySelectorAll('.reveal:not(.in)'));
+      els.forEach((el, i) => {
+        if (seen.has(el)) return;
+        seen.add(el);
+        if (!el.style.transitionDelay) el.style.transitionDelay = Math.min(i * 45, 300) + 'ms';
+        if (io) io.observe(el); else el.classList.add('in');
+      });
+    };
+
+    scan();
+    /* pick up cards that mount later (e.g. after the skeleton loaders) */
+    const mo = new MutationObserver(scan);
+    mo.observe(root, { childList: true, subtree: true });
+    return () => { mo.disconnect(); if (io) io.disconnect(); };
+  }, []);
+  return ref;
+}
+
+function useCountUp(value) {
+  const [n, setN] = useState(value);
+  const prev = useRef(value);
+  useEffect(() => {
+    if (prev.current === value) return;
+    const from = prev.current, to = value, t0 = performance.now(), dur = 380;
+    let raf;
+    const step = now => {
+      const p = Math.min(1, (now - t0) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setN(Math.round(from + (to - from) * eased));
+      if (p < 1) raf = requestAnimationFrame(step); else prev.current = value;
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  return n;
+}
+
+function filterProducts(list, { q = '', cat = 'All Categories', brand = '', sort = 'popular', band = 'any' } = {}) {
+  const needle = q.trim().toLowerCase();
+  const b = PRICE_BANDS.find(x => x.id === band) || PRICE_BANDS[0];
+  let out = list.filter(p => {
+    if (cat && cat !== 'All Categories' && p.category !== cat) return false;
+    if (brand && p.brand !== brand) return false;
+    if (p.price < b.min || p.price > b.max) return false;
+    if (!needle) return true;
+    return (p.name + ' ' + p.brand + ' ' + p.category + ' ' + p.description).toLowerCase().indexOf(needle) > -1;
+  });
+  out = out.slice().sort((a, b2) => {
+    if (sort === 'low') return a.price - b2.price;
+    if (sort === 'high') return b2.price - a.price;
+    if (sort === 'rating') return b2.rating - a.rating;
+    return b2.popularity - a.popularity;
+  });
+  return out;
+}
+
+/* =========================================================
+   CHROME — header, search, bottom nav, toasts
+   ========================================================= */
+function Logo({ onClick }) {
+  const taps = useRef(0);
+  const tapTimer = useRef(null);
+  /* secret: tap the logo 12 times quickly to open the admin panel */
+  const handleTap = e => {
+    taps.current += 1;
+    window.clearTimeout(tapTimer.current);
+    tapTimer.current = window.setTimeout(() => { taps.current = 0; }, 1800);
+    if (taps.current >= 12) {
+      taps.current = 0;
+      window.clearTimeout(tapTimer.current);
+      window.location.href = 'admin.html';
+      return;
+    }
+    if (onClick) onClick(e);
+  };
+  return (
+    <button className="logo" onClick={handleTap} aria-label="AURA home">
+      <span className="logo-mark">A</span><span>AURA</span>
+    </button>
+  );
+}
+
+function CountBadge({ count, pop }) {
+  if (!count) return null;
+  return <span className={'badge' + (pop ? ' pop' : '')}>{count}</span>;
+}
+
+function SearchBar({ autoFocus, onSubmit, onOpen, onChangeValue, placeholder = 'Search your product', initial = '', showClear = true }) {
+  const [q, setQ] = useState(initial);
+  const [focused, setFocused] = useState(false);
+  const app = useApp();
+  const boxRef = useRef(null);
+
+  useEffect(() => { setQ(initial); }, [initial]);
+
+  useEffect(() => {
+    const onDoc = e => { if (boxRef.current && !boxRef.current.contains(e.target)) setFocused(false); };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, []);
+
+  const matches = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    if (!needle) return [];
+    return PRODUCTS.filter(p => (p.name + ' ' + p.brand + ' ' + p.category).toLowerCase().indexOf(needle) > -1).slice(0, 5);
+  }, [q, app.catalogVersion]);
+
+  const submit = e => {
+    e.preventDefault();
+    setFocused(false);
+    if (onSubmit) onSubmit(q);
+  };
+
+  return (
+    <div className="search" ref={boxRef}>
+      <form className="search-box" onSubmit={submit} role="search">
+        <Icon name="search" size={19} style={{ color: '#a08d84', flex: 'none' }} />
+        <input
+          type="search" value={q} autoFocus={autoFocus} placeholder={placeholder}
+          aria-label="Search products"
+          onFocus={() => setFocused(true)}
+          onChange={e => { setQ(e.target.value); if (onChangeValue) onChangeValue(e.target.value); }}
+        />
+        {showClear && q && (
+          <button type="button" className="search-clear" aria-label="Clear search"
+            onClick={() => { setQ(''); if (onOpen) onOpen(''); }}>
+            <Icon name="close" size={13} stroke={2.4} />
+          </button>
+        )}
+      </form>
+      {focused && q.trim() && (
+        <div className="suggest" role="listbox" aria-label="Search suggestions">
+          {matches.length === 0 && (
+            <p style={{ padding: '14px 12px', fontSize: '.84rem', color: 'var(--muted)' }}>
+              No matches for “{q}”. Try “jacket”, “sneakers” or “Nike”.
+            </p>
+          )}
+          {matches.map(p => (
+            <button key={p.id} type="button" className="sug" role="option" aria-selected="false"
+              onClick={() => { setFocused(false); if (onOpen) onOpen(null, p.id); }}>
+              <Img src={p.images[0]} alt={p.name} />
+              <span style={{ minWidth: 0, flex: 1 }}>
+                <span className="sug-name" style={{ display: 'block' }}>{p.name}</span>
+                <span className="sug-meta">{p.brand} · {p.category}</span>
+              </span>
+              <span className="price" style={{ fontSize: '.85rem' }}>{money(p.price)}</span>
+            </button>
+          ))}
+          <button type="button" className="sug-foot" onClick={submit}>
+            See all results for “{q}” <Icon name="arrow" size={14} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Header({ route, navigate }) {
+  const app = useApp();
+  const isDesktop = useMediaQuery('(min-width:1024px)');
+  const [bump, setBump] = useState(false);
+  const first = useRef(true);
+
+  useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    setBump(true);
+    const t = window.setTimeout(() => setBump(false), 520);
+    return () => window.clearTimeout(t);
+  }, [app.cartCount]);
+
+  const links = [
+    { view: 'home', label: 'Home' },
+    { view: 'collections', label: 'Collections' },
+    { view: 'wishlist', label: 'Wishlist' },
+    { view: 'orders', label: 'Orders' },
+    { view: 'profile', label: 'Profile' }
+  ];
+
+  return (
+    <header className="hdr">
+      <div className="hdr-in">
+        <Logo onClick={() => navigate('home')} />
+        {isDesktop ? (
+          <>
+            <div className="hdr-search">
+              <SearchBar onSubmit={q => navigate('search', { q })} onOpen={(q, id) => id ? navigate('product', { id }) : navigate('search', { q })} />
+            </div>
+            <nav className="hdr-links" aria-label="Primary">
+              {links.map(l => (
+                <button key={l.view} className={'hdr-link' + (route.view === l.view ? ' active' : '')}
+                  onClick={() => navigate(l.view)}>{l.label}</button>
+              ))}
+            </nav>
+          </>
+        ) : (
+          <div style={{ flex: 1 }} />
+        )}
+        <div className="row" style={{ gap: 8, flex: 'none' }}>
+          <button className="icon-btn" aria-label={'Wishlist, ' + app.wishlist.length + ' items'}
+            onClick={() => navigate('wishlist')}>
+            <Icon name="heart" size={19} style={{ color: app.wishlist.length ? 'var(--primary)' : '#4a4a4a' }} />
+            <CountBadge count={app.wishlist.length} />
+          </button>
+          <button className="icon-btn" aria-label={'Shopping bag, ' + app.cartCount + ' items'}
+            onClick={() => navigate('cart')}>
+            <Icon name="bag" size={19} style={{ color: '#4a4a4a' }} />
+            <CountBadge count={app.cartCount} pop={bump} />
+          </button>
+        </div>
+      </div>
+      {!isDesktop && (
+        <div style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '0 16px 12px' }}>
+          <SearchBar onSubmit={q => navigate('search', { q })} onOpen={(q, id) => id ? navigate('product', { id }) : navigate('search', { q })} />
+        </div>
+      )}
+    </header>
+  );
+}
+
+const NAV_ITEMS = [
+  { view: 'home', label: 'Home', icon: 'home' },
+  { view: 'wishlist', label: 'Favorites', icon: 'heart' },
+  { view: 'collections', label: 'Collections', icon: 'layers' },
+  { view: 'search', label: 'Search', icon: 'search' },
+  { view: 'profile', label: 'Profile', icon: 'user' }
+];
+
+function BottomNav({ route, navigate }) {
+  return (
+    <nav className="bnav" aria-label="Bottom navigation">
+      {NAV_ITEMS.map(item => {
+        const on = route.view === item.view ||
+          (item.view === 'search' && (route.view === 'search' || route.view === 'product')) ||
+          (item.view === 'wishlist' && route.view === 'wishlist');
+        return (
+          <button key={item.view} className={'nav-item' + (on ? ' on' : '')}
+            aria-current={on ? 'page' : undefined} aria-label={item.label}
+            onClick={() => navigate(item.view)}>
+            <Icon name={item.icon} size={21} stroke={on ? 2.1 : 1.7} />
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+function Toasts() {
+  const { toasts } = useApp();
+  return (
+    <div className="toasts" role="status" aria-live="polite">
+      {toasts.map(t => (
+        <div key={t.id} className={'toast' + (t.out ? ' out' : '')}>
+          <span className="toast-ico"><Icon name={t.iconName} size={14} stroke={2.4} /></span>
+          <span>{t.message}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Modal({ title, children, onClose, footer }) {
+  useEffect(() => {
+    const onKey = e => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+  }, [onClose]);
+  return (
+    <div className="scrim" onClick={onClose} role="dialog" aria-modal="true" aria-label={title}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="row" style={{ gap: 12, marginBottom: 6 }}>
+          <h3 style={{ flex: 1 }}>{title}</h3>
+          <button className="icon-btn" style={{ width: 34, height: 34 }} aria-label="Close" onClick={onClose}>
+            <Icon name="close" size={16} />
+          </button>
+        </div>
+        {children}
+        {footer && <div style={{ marginTop: 18, display: 'flex', gap: 10 }}>{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   PRODUCT CARD / GRID
+   ========================================================= */
+function ProductCard({ product, index = 0, onOpen }) {
+  const { wishlist, toggleWish, addToCart } = useApp();
+  const wished = wishlist.indexOf(product.id) > -1;
+  const [pop, setPop] = useState(false);
+  const discount = product.originalPrice > product.price
+    ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+
+  const fav = e => {
+    e.stopPropagation();
+    setPop(true);
+    window.setTimeout(() => setPop(false), 520);
+    toggleWish(product.id);
+  };
+
+  return (
+    <article className="card reveal" style={{ transitionDelay: Math.min(index * 45, 300) + 'ms' }}>
+      <button className="card-media" onClick={() => onOpen(product.id)} aria-label={'View ' + product.name}>
+        <Img src={product.images[0]} alt={product.name} />
+        {discount > 0 && <span className="tag">-{discount}%</span>}
+        <span className="rating-mini"><Icon name="star" size={10} stroke={0} style={{ fill: '#F0A93B', color: '#F0A93B' }} />{product.rating}</span>
+      </button>
+      <span className={'fav-btn' + (wished ? ' on pop' : (pop ? ' pop' : ''))} role="button" tabIndex={0}
+        aria-label={wished ? 'Remove ' + product.name + ' from wishlist' : 'Add ' + product.name + ' to wishlist'}
+        onClick={fav}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fav(e); } }}>
+        <Icon name="heart" size={16} stroke={wished ? 0 : 1.9}
+          style={{ fill: wished ? 'var(--primary)' : 'none', color: wished ? 'var(--primary)' : '#5c5c5c' }} />
+      </span>
+      <div className="card-body">
+        <div className="card-row">
+          <div style={{ minWidth: 0 }}>
+            <h3 className="card-name">{product.name}</h3>
+            <p className="card-meta">{product.brand} · {product.category}</p>
+          </div>
+          <button className="add-btn" aria-label={'Add ' + product.name + ' to cart'}
+            onClick={() => addToCart(product)}>
+            <Icon name="bag" size={16} stroke={2} />
+          </button>
+        </div>
+        <div className="card-price">
+          <span className="price">{money(product.price)}</span>
+          {discount > 0 && <span className="mr">{money(product.originalPrice)}</span>}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function SkeletonGrid({ count = 6 }) {
+  return (
+    <div className="grid" aria-hidden="true">
+      {Array.from({ length: count }).map((_, i) => (
+        <div className="sk-card" key={i}>
+          <div className="sk sk-media" />
+          <div className="sk sk-line" />
+          <div className="sk sk-line w60" style={{ marginTop: 0, marginBottom: 16 }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProductGrid({ products, onOpen, emptyTitle = 'Nothing matches yet', emptyText = 'Try a different category, brand or price range.', action }) {
+  if (!products.length) {
+    return (
+      <div className="empty">
+        <div className="empty-art"><Icon name="search" size={38} stroke={1.5} /></div>
+        <h3>{emptyTitle}</h3>
+        <p>{emptyText}</p>
+        {action}
+      </div>
+    );
+  }
+  return (
+    <div className="grid">
+      {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} onOpen={onOpen} />)}
+    </div>
+  );
+}
+
+/* =========================================================
+   HOME
+   ========================================================= */
+function HeroBanner({ navigate }) {
+  const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const t = window.setInterval(() => setI(x => (x + 1) % BANNERS.length), 5200);
+    return () => window.clearInterval(t);
+  }, [paused]);
+
+  return (
+    <section className="hero reveal" aria-label="Promotions" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <div className="hero-art" aria-hidden="true">
+        <span className="hero-deco floaty" style={{ width: 92, height: 92, top: 18, left: '42%' }} />
+        <span className="hero-deco floaty" style={{ width: 44, height: 44, bottom: 40, left: '30%', animationDelay: '1.4s' }} />
+        <span className="hero-deco floaty" style={{ width: 30, height: 30, top: 26, right: '52%', animationDelay: '.7s' }} />
+      </div>
+      <div className="hero-model" aria-hidden="true">
+        {BANNERS.map((b, idx) => (
+          <img key={b.id} className={'hero-img' + (idx === i ? ' on' : '')} src={b.img} alt="" loading="lazy"
+            onError={e => { e.currentTarget.style.opacity = '0'; }} />
+        ))}
+      </div>
+      <div className="hero-body" key={i}>
+        <span className="hero-kicker">{BANNERS[i].kicker}</span>
+        <h2 className="hero-title">{BANNERS[i].title}</h2>
+        <p className="hero-sub">{BANNERS[i].sub}</p>
+        <button className="hero-cta" onClick={() => navigate('search', { cat: BANNERS[i].filter.cat })}>
+          {BANNERS[i].cta} <Icon name="arrow" size={15} stroke={2.2} />
+        </button>
+      </div>
+      <div className="hero-dots" role="tablist" aria-label="Banner slides">
+        {BANNERS.map((b, idx) => (
+          <button key={b.id} className={'dot' + (idx === i ? ' active' : '')} role="tab"
+            aria-selected={idx === i} aria-label={'Slide ' + (idx + 1)} onClick={() => setI(idx)} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function BrandSection({ active, onPick, onSeeAll }) {
+  return (
+    <section className="sec reveal">
+      <div className="sec-head">
+        <h2 className="sec-title">Top Brand</h2>
+        <span className="sec-sub">Curated labels</span>
+        <span className="spacer" />
+        <button className="link-more" onClick={onSeeAll}>See All</button>
+      </div>
+      <div className="brands">
+        {BRANDS.map(b => (
+          <button key={b.id} className={'brand' + (active === b.name ? ' on' : '')}
+            onClick={() => onPick(b.name)} aria-pressed={active === b.name}>
+            <span className="brand-logo">
+              {b.image
+                ? <img src={b.image} alt={b.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} onError={e => { e.target.style.display = 'none'; }} />
+                : b.mark}
+            </span>
+            <span className="brand-name">{b.name}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function HomePage({ navigate, params }) {
+  const app = useApp();
+  const [cat, setCat] = useState('All Categories');
+  const [brand, setBrand] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setLoading(false), 720);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  const list = useMemo(() => filterProducts(PRODUCTS, { cat, brand, sort: 'popular' }), [cat, brand, app.catalogVersion]);
+
+  const pickBrand = name => {
+    const next = brand === name ? '' : name;
+    setBrand(next);
+    if (next) app.toast('Showing ' + next, 'tag');
+  };
+
+  const recentProducts = useMemo(() => app.recent.map(id => PRODUCT_MAP[id]).filter(Boolean).slice(0, 4), [app.recent, app.catalogVersion]);
+
+  return (
+    <div>
+      <section className="chips reveal" aria-label="Categories">
+        {CATEGORIES.map(c => (
+          <button key={c} className={'chip' + (cat === c ? ' active' : '')} aria-pressed={cat === c}
+            onClick={() => { setCat(c); if (c !== 'All Categories') setBrand(''); }}>
+            <Icon name={CAT_ICON[c] || 'layers'} size={14} stroke={2} />
+            {c}
+          </button>
+        ))}
+      </section>
+
+      <HeroBanner navigate={navigate} />
+
+      <BrandSection active={brand} onPick={pickBrand}
+        onSeeAll={() => navigate('search', { cat: 'All Categories' })} />
+
+      <section className="sec reveal">
+        <div className="sec-head">
+          <h2 className="sec-title">Recommended for You</h2>
+          <span className="sec-sub">{list.length} items</span>
+          <span className="spacer" />
+          <button className="link-more" onClick={() => navigate('search', { cat, brand })}>See All</button>
+        </div>
+        {loading ? <SkeletonGrid count={6} /> : (
+          <ProductGrid products={list.slice(0, 10)} onOpen={navigate.bind(null, 'product', 'id')}
+            emptyTitle="No products in this category"
+            emptyText="Pick another category to keep exploring."
+            action={<button className="btn btn-primary" onClick={() => { setCat('All Categories'); setBrand(''); }}>Show all products</button>} />
+        )}
+      </section>
+
+      <section className="sec reveal">
+        <div className="sec-head">
+          <h2 className="sec-title">Trending Collections</h2>
+          <span className="spacer" />
+          <button className="link-more" onClick={() => navigate('collections')}>See All</button>
+        </div>
+        <div className="collections-grid" style={{ display: 'grid', gap: 14 }}>
+          {COLLECTIONS.slice(0, 4).map(c => (
+            <button key={c.id} className="collection" onClick={() => navigate('collection', { id: c.id })}>
+              <Img src={c.img} alt="" />
+              <span className="collection-body">
+                <span className="collection-name">{c.name}</span>
+                <span className="collection-sub">{c.sub}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {recentProducts.length > 0 && (
+        <section className="sec reveal">
+          <div className="sec-head"><h2 className="sec-title">Recently Viewed</h2></div>
+          <ProductGrid products={recentProducts} onOpen={navigate.bind(null, 'product', 'id')} />
+        </section>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================
+   PRODUCT DETAILS
+   ========================================================= */
+function StarsBlock({ rating, reviews }) {
+  return (
+    <div className="row" style={{ gap: 8 }}>
+      <StarRating value={rating} size={15} />
+      <span className="rev-count">{rating.toFixed(1)} · {reviews} reviews</span>
+    </div>
+  );
+}
+
+function ProductDetails({ product, navigate }) {
+  const app = useApp();
+  const [imgIndex, setImgIndex] = useState(0);
+  const [size, setSize] = useState(product.sizes[0]);
+  const [color, setColor] = useState(product.colors[0]);
+  const [qty, setQty] = useState(1);
+  const wished = app.wishlist.indexOf(product.id) > -1;
+  const [justAdded, setJustAdded] = useState(false);
+
+  useEffect(() => { app.viewProduct(product.id); }, [product.id]);
+  useEffect(() => {
+    if (imgIndex >= product.images.length) setImgIndex(0);
+  }, [product.id]);
+
+  /* color-wise images: if admin uploaded images for the selected color, show those */
+  const variantImgs = (product.colorImages && product.colorImages[color]) || [];
+  const gallery = variantImgs.length ? variantImgs : product.images;
+  useEffect(() => { setImgIndex(0); }, [color]);
+  useEffect(() => {
+    if (imgIndex >= gallery.length) setImgIndex(0);
+  }, [gallery.length]);
+
+  const related = useMemo(() => PRODUCTS
+    .filter(p => p.id !== product.id && (p.category === product.category || p.brand === product.brand))
+    .sort((a, b) => (b.popularity - a.popularity)).slice(0, 4), [product.id, app.catalogVersion]);
+
+  const add = () => {
+    app.addToCart(product, { size, color, qty, price: priceNow });
+    setJustAdded(true);
+    window.setTimeout(() => setJustAdded(false), 1400);
+  };
+
+  /* size-wise price: chosen size overrides the base price when set */
+  const sp = product.sizePrices && Number(product.sizePrices[size]);
+  const priceNow = sp > 0 ? sp : product.price;
+  const discount = product.originalPrice > priceNow ? Math.round((1 - priceNow / product.originalPrice) * 100) : 0;
+
+  return (
+    <div>
+    <div className="pdp">
+      <div className="pdp-gallery">
+        <div className="card-media" style={{ borderRadius: 'var(--r-lg)', boxShadow: 'var(--sh-sm)', position: 'relative' }}>
+          <Img src={gallery[imgIndex]} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          {discount > 0 && <span className="tag" style={{ top: 12, left: 12, fontSize: '.72rem' }}>-{discount}% OFF</span>}
+        </div>
+        {gallery.length > 1 && (
+          <div className="thumbs" role="group" aria-label="Product images">
+            {gallery.map((src, i) => (
+              <button key={i} className={'thumb' + (i === imgIndex ? ' on' : '')} aria-label={'View image ' + (i + 1)}
+                aria-pressed={i === imgIndex} onClick={() => setImgIndex(i)}>
+                <Img src={src} alt="" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="pdp-info">
+        <div>
+          <p className="pdp-brand">{product.brand}</p>
+          <h1 className="pdp-title">{product.name}</h1>
+        </div>
+        <div className="pdp-price">
+          <span className="price">{money(priceNow)}</span>
+          {discount > 0 && (
+            <>
+              <span className="mr" style={{ fontSize: '.95rem' }}>{money(product.originalPrice)}</span>
+              <span className="tag" style={{ position: 'static' }}>Save {discount}%</span>
+            </>
+          )}
+          {sp > 0 && <span className="sec-sub" style={{ fontSize: '.74rem' }}>price for size {size}</span>}
+        </div>
+        <StarsBlock rating={product.rating} reviews={product.reviews} />
+        <p className="desc">{product.description}</p>
+
+        <div>
+          <p className="opt-label">Select size <span>{size}</span></p>
+          <div className="opt-row" role="group" aria-label="Sizes">
+            {product.sizes.map(s => (
+              <button key={s} className={'size' + (s === size ? ' on' : '')} aria-pressed={s === size}
+                onClick={() => setSize(s)}>{s}</button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="opt-label">Colour</p>
+          <div className="opt-row" role="group" aria-label="Colours">
+            {product.colors.map(c => (
+              <button key={c} className={'swatch' + (c === color ? ' on' : '')} style={{ background: c }}
+                title={(product.colorNames && product.colorNames[c]) || c}
+                aria-label={(product.colorNames && product.colorNames[c]) ? product.colorNames[c] : 'Colour ' + c}
+                aria-pressed={c === color} onClick={() => setColor(c)} />
+            ))}
+          </div>
+        </div>
+
+        <div className="row" style={{ gap: 12, flexWrap: 'wrap' }}>
+          <p className="opt-label" style={{ margin: 0 }}>Quantity</p>
+          <div className="qty">
+            <button aria-label="Decrease quantity" onClick={() => setQty(q => Math.max(1, q - 1))} disabled={qty <= 1}>
+              <Icon name="minus" size={16} stroke={2.4} />
+            </button>
+            <span aria-live="polite">{qty}</span>
+            <button aria-label="Increase quantity" onClick={() => setQty(q => Math.min(20, q + 1))}>
+              <Icon name="plus" size={16} stroke={2.4} />
+            </button>
+          </div>
+        </div>
+
+        <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
+          <button className="btn btn-primary" style={{ flex: '1 1 190px' }} onClick={add}>
+            {justAdded ? <><Icon name="check" size={17} stroke={2.4} /> Added to cart</> : <><Icon name="bag" size={17} /> Add to Cart</>}
+          </button>
+          <button className="btn btn-dark" style={{ flex: '1 1 150px' }}
+            onClick={() => { app.addToCart(product, { size, color, qty, price: priceNow }); navigate('checkout'); }}>
+            Buy Now
+          </button>
+          <button className={'icon-btn' + (wished ? ' on' : '')} style={{ width: 52, height: 52, borderRadius: 999, flex: 'none' }}
+            aria-label={wished ? 'Remove from wishlist' : 'Add to wishlist'} aria-pressed={wished}
+            onClick={() => app.toggleWish(product.id)}>
+            <Icon name="heart" size={21} stroke={wished ? 0 : 1.8}
+              style={{ color: wished ? 'var(--primary)' : '#4a4a4a', fill: wished ? 'var(--primary)' : 'none' }} />
+          </button>
+        </div>
+
+        <ul className="card-p" style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: '.82rem', color: '#5c5c5c' }}>
+          <li className="row" style={{ gap: 10 }}><Icon name="truck" size={17} style={{ color: 'var(--accent)' }} /> Free delivery on orders over $150 · 7-day easy returns (demo)</li>
+          <li className="row" style={{ gap: 10 }}><Icon name="shield" size={17} style={{ color: 'var(--accent)' }} /> Secure demo checkout — no real payments are processed</li>
+          <li className="row" style={{ gap: 10 }}><Icon name="tag" size={17} style={{ color: 'var(--accent)' }} /> SKU {product.id.toUpperCase()} · {product.category}</li>
+        </ul>
+      </div>
+
+      </div>
+    <section className="sec reveal" style={{ marginTop: 30 }}>
+      <div className="sec-head">
+        <h2 className="sec-title">You may also like</h2>
+        <span className="spacer" />
+        <button className="link-more" onClick={() => navigate('search', { cat: product.category })}>See All</button>
+      </div>
+      <ProductGrid products={related} onOpen={navigate.bind(null, 'product', 'id')} />
+    </section>
+    </div>
+  );
+}
+
+/* =========================================================
+   CART
+   ========================================================= */
+function FreeShipNote({ subtotal }) {
+  const goal = 150;
+  const pct = Math.min(100, Math.round((subtotal / goal) * 100));
+  const left = Math.max(0, goal - subtotal);
+  return (
+    <div className="card-p" style={{ marginBottom: 14 }}>
+      {left > 0 ? (
+        <p style={{ fontSize: '.82rem', color: '#5c5c5c' }}>Add <strong style={{ color: 'var(--accent)' }}>{money(left)}</strong> more for free delivery</p>
+      ) : (
+        <p className="row" style={{ gap: 8, fontSize: '.84rem', fontWeight: 700, color: 'var(--ok)' }}>
+          <Icon name="check" size={16} stroke={2.4} /> You have unlocked free delivery
+        </p>
+      )}
+      <div className="progress"><i style={{ width: pct + '%' }} /></div>
+    </div>
+  );
+}
+
+function OrderSummary({ subtotal, shipping, total, savings, children, footer, title = 'Order Summary' }) {
+  return (
+    <div className="summary">
+      <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: 6 }}>{title}</h3>
+      {children}
+      <div className="sum-row"><span>Subtotal</span><span>{money(subtotal)}</span></div>
+      {savings > 0 && <div className="sum-row" style={{ color: 'var(--ok)' }}><span>You saved</span><span>-{money(savings)}</span></div>}
+      <div className="sum-row"><span>Delivery charge</span><span>{shipping === 0 ? <b style={{ color: 'var(--ok)' }}>Free</b> : money(shipping)}</span></div>
+      <div className="sum-row"><span>Taxes (demo)</span><span>Included</span></div>
+      <div className="sum-total"><span>Total</span><span>{money(total)}</span></div>
+      {footer}
+    </div>
+  );
+}
+
+function CartPage({ navigate }) {
+  const app = useApp();
+  const { cartLines, subtotal, shipping, total, savings } = app;
+
+  if (!cartLines.length) {
+    return (
+      <div className="empty">
+        <div className="empty-art"><Icon name="bag" size={40} stroke={1.4} /></div>
+        <h3>Your bag is empty</h3>
+        <p>Looks like you have not added anything yet. Explore the new season and find something you love.</p>
+        <button className="btn btn-primary" onClick={() => navigate('home')}>Start shopping</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="split">
+      <div>
+        <FreeShipNote subtotal={subtotal} />
+        <div className="stack" style={{ gap: 12 }}>
+          {cartLines.map((line, i) => (
+            <div className="line-item" key={line.key} style={{ animationDelay: Math.min(i * 55, 300) + 'ms' }}>
+              <button onClick={() => navigate('product', { id: line.id })} aria-label={'View ' + line.product.name} style={{ flex: 'none' }}>
+                <Img src={line.product.images[0]} alt={line.product.name} />
+              </button>
+              <div className="li-body">
+                <div className="row" style={{ gap: 8 }}>
+                  <h3 className="li-name" style={{ flex: 1 }}>{line.product.name}</h3>
+                  <span className="price" style={{ fontSize: '.95rem' }}>{money(line.lineTotal)}</span>
+                </div>
+                <p className="li-meta">{line.product.brand} · Size {line.size} · <span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 3, background: line.color, verticalAlign: 'middle', boxShadow: '0 0 0 1px rgba(0,0,0,.12)' }} /></p>
+                <div className="li-foot">
+                  <div className="qty-sm">
+                    <button aria-label={'Decrease quantity of ' + line.product.name} onClick={() => app.updateQty(line.key, line.qty - 1)}>
+                      <Icon name="minus" size={14} stroke={2.4} />
+                    </button>
+                    <span>{line.qty}</span>
+                    <button aria-label={'Increase quantity of ' + line.product.name} onClick={() => app.updateQty(line.key, line.qty + 1)}>
+                      <Icon name="plus" size={14} stroke={2.4} />
+                    </button>
+                  </div>
+                  <button className="rm" aria-label={'Remove ' + line.product.name} onClick={() => app.removeFromCart(line.key)}>
+                    <Icon name="trash" size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <OrderSummary subtotal={subtotal} shipping={shipping} total={total} savings={savings}
+        footer={<div className="stack" style={{ gap: 10, marginTop: 16 }}>
+          <button className="btn btn-primary btn-block" onClick={() => navigate('checkout')}>
+            Proceed to Checkout <Icon name="arrow" size={16} stroke={2.2} />
+          </button>
+          <button className="btn btn-ghost btn-block" onClick={() => navigate('home')}>Continue Shopping</button>
+        </div>} />
+    </div>
+  );
+}
+
+/* =========================================================
+   WISHLIST
+   ========================================================= */
+function WishlistPage({ navigate }) {
+  const app = useApp();
+  const items = app.wishlist.map(id => PRODUCT_MAP[id]).filter(Boolean);
+
+  if (!items.length) {
+    return (
+      <div className="empty">
+        <div className="empty-art"><Icon name="heart" size={40} stroke={1.4} /></div>
+        <h3>Your wishlist is empty</h3>
+        <p>Tap the heart on any product to save it here for later. Your picks stay on this device.</p>
+        <button className="btn btn-primary" onClick={() => navigate('home')}>Browse products</button>
+      </div>
+    );
+  }
+
+  const totalSaved = items.reduce((s, p) => s + (p.originalPrice - p.price), 0);
+
+  return (
+    <div>
+      <div className="free-pill" style={{ marginBottom: 14 }}>
+        <Icon name="tag" size={14} /> {items.length} saved · you save {money(totalSaved)} vs list price
+      </div>
+      <ProductGrid products={items} onOpen={navigate.bind(null, 'product', 'id')} />
+      <div className="stack" style={{ gap: 10, marginTop: 20 }}>
+        <button className="btn btn-primary btn-block" onClick={() => {
+          items.forEach(p => app.addToCart(p));
+          navigate('cart');
+        }}>
+          Move all to Cart <Icon name="arrow" size={16} stroke={2.2} />
+        </button>
+        <button className="btn btn-ghost btn-block" onClick={() => navigate('home')}>Continue Shopping</button>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   SEARCH / FILTER
+   ========================================================= */
+function SearchPage({ navigate, params }) {
+  const app = useApp();
+  const [q, setQ] = useState(params.q || '');
+  const [cat, setCat] = useState(params.cat || 'All Categories');
+  const [brand, setBrand] = useState(params.brand || '');
+  const [sort, setSort] = useState('popular');
+  const [band, setBand] = useState('any');
+
+  const results = useMemo(
+    () => filterProducts(PRODUCTS, { q, cat, brand, sort, band }),
+    [q, cat, brand, sort, band, app.catalogVersion]
+  );
+  const activeFilters = (cat !== 'All Categories' ? 1 : 0) + (brand ? 1 : 0) + (band !== 'any' ? 1 : 0) + (q ? 1 : 0);
+
+  const reset = () => { setQ(''); setCat('All Categories'); setBrand(''); setBand('any'); setSort('popular'); };
+
+  return (
+    <div>
+      <SearchBar initial={q} onSubmit={setQ} onChangeValue={setQ}
+        onOpen={(val, id) => id ? navigate('product', { id }) : setQ(val || '')} />
+
+      <div className="chips reveal" aria-label="Filter by category">
+        {CATEGORIES.map(c => (
+          <button key={c} className={'chip mini' + (cat === c ? ' active' : '')} aria-pressed={cat === c} onClick={() => setCat(c)}>{c}</button>
+        ))}
+      </div>
+
+      <div className="card-p reveal" style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
+          <span className="row" style={{ gap: 6, fontSize: '.78rem', fontWeight: 700, color: '#4a4a4a' }}>
+            <Icon name="filter" size={15} /> Price
+          </span>
+          <div className="row" style={{ gap: 7, flexWrap: 'wrap' }}>
+            {PRICE_BANDS.map(b => (
+              <button key={b.id} className={'chip mini' + (band === b.id ? ' active' : '')} aria-pressed={band === b.id}
+                onClick={() => setBand(b.id)}>{b.label}</button>
+            ))}
+          </div>
+        </div>
+        <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
+          <span className="row" style={{ gap: 6, fontSize: '.78rem', fontWeight: 700, color: '#4a4a4a' }}>
+            <Icon name="tag" size={15} /> Brand
+          </span>
+          <div className="row" style={{ gap: 7, flexWrap: 'wrap' }}>
+            {BRANDS.map(b => (
+              <button key={b.id} className={'chip mini' + (brand === BRAND_NAME[b.id] ? ' active' : '')}
+                aria-pressed={brand === BRAND_NAME[b.id]} onClick={() => setBrand(brand === b.name ? '' : b.name)}>
+                {b.name}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
+          <label htmlFor="sort" className="row" style={{ gap: 6, fontSize: '.78rem', fontWeight: 700, color: '#4a4a4a' }}>
+            <Icon name="sliders" size={15} /> Sort
+          </label>
+          <select id="sort" className="input" style={{ width: 'auto', minWidth: 190, height: 42, borderRadius: 999, padding: '0 14px' }}
+            value={sort} onChange={e => setSort(e.target.value)}>
+            {SORTS.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+          </select>
+          {activeFilters > 0 && (
+            <button className="chip mini" onClick={reset} style={{ marginLeft: 'auto' }}>
+              <Icon name="refresh" size={13} stroke={2.2} /> Clear all
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="sec-head" style={{ marginTop: 18 }}>
+        <h2 className="sec-title" style={{ fontSize: '.98rem' }}>{results.length} result{results.length === 1 ? '' : 's'}</h2>
+        {q && <span className="sec-sub">for “{q}”</span>}
+      </div>
+
+      <ProductGrid products={results} onOpen={navigate.bind(null, 'product', 'id')}
+        emptyTitle="No products found"
+        emptyText="We could not find anything matching those filters. Try a broader search or clear your filters."
+        action={<button className="btn btn-primary" onClick={reset}>Clear filters</button>} />
+    </div>
+  );
+}
+
+/* =========================================================
+   COLLECTIONS
+   ========================================================= */
+function CollectionsPage({ navigate, params }) {
+  const app = useApp();
+  const [sel, setSel] = useState((params && params.id) || null);
+  const collection = COLLECTIONS.find(c => c.id === sel) || null;
+
+  const list = useMemo(() => {
+    if (!collection) return PRODUCTS.slice().sort((a, b) => b.popularity - a.popularity).slice(0, 8);
+    return PRODUCTS.filter(p => p.collection.indexOf(collection.id) > -1);
+  }, [collection, app.catalogVersion]);
+
+  return (
+    <div>
+      <section className="sec reveal" style={{ marginTop: 12 }}>
+        <div className="sec-head">
+          <h2 className="sec-title">Shop by Collection</h2>
+          <span className="spacer" />
+          {collection && <button className="link-more" onClick={() => setSel(null)}>Clear</button>}
+        </div>
+        <div className="collections-grid" style={{ display: 'grid', gap: 14 }}>
+          {COLLECTIONS.map(c => (
+            <button key={c.id}
+              className={'collection' + (collection && collection.id === c.id ? ' on' : '')}
+              style={collection && collection.id === c.id ? { outline: '3px solid var(--primary)', outlineOffset: 2 } : null}
+              aria-pressed={!!collection && collection.id === c.id}
+              onClick={() => setSel(c.id)}>
+              <Img src={c.img} alt="" />
+              <span className="collection-body">
+                <span className="collection-name">{c.name}</span>
+                <span className="collection-sub">{c.sub}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="sec reveal">
+        <div className="sec-head">
+          <h2 className="sec-title">{collection ? collection.name : 'Trending now'}</h2>
+          <span className="sec-sub">{list.length} items</span>
+          <span className="spacer" />
+          {collection && <button className="link-more" onClick={() => setSel(null)}>See all</button>}
+        </div>
+        {list.length
+          ? <ProductGrid products={list} onOpen={navigate.bind(null, 'product', 'id')} />
+          : (
+            <div className="empty">
+              <div className="empty-art"><Icon name="layers" size={38} stroke={1.5} /></div>
+              <h3>Nothing here yet</h3>
+              <p>This collection is being styled. Check back soon or explore trending products.</p>
+              <button className="btn btn-primary" onClick={() => setSel(null)}>Show trending</button>
+            </div>
+          )}
+      </section>
+    </div>
+  );
+}
+
+/* =========================================================
+   PROFILE
+   ========================================================= */
+const PROFILE_LINKS = [
+  { key: 'orders', label: 'My Orders', desc: 'Track, review or reorder', icon: 'box', view: 'orders' },
+  { key: 'wishlist', label: 'My Wishlist', desc: 'Saved favourites', icon: 'heart', view: 'wishlist' },
+  { key: 'addresses', label: 'Shopping Addresses', desc: 'Manage delivery addresses', icon: 'pin', action: 'addresses' },
+  { key: 'payments', label: 'Payment Methods', desc: 'Cards, UPI and COD (demo)', icon: 'card', action: 'payments' },
+  { key: 'settings', label: 'Settings', desc: 'Notifications, theme and privacy', icon: 'sliders', action: 'settings' },
+  { key: 'help', label: 'Help and Support', desc: 'FAQs and contact us', icon: 'help', action: 'help' }
+];
+
+function ProfilePage({ navigate, onBack }) {
+  const app = useApp();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(app.profile);
+  const [modal, setModal] = useState(null);
+  const initials = app.profile.name.split(' ').map(x => x[0]).slice(0, 2).join('').toUpperCase();
+
+  const save = () => {
+    app.setProfile(draft);
+    setEditing(false);
+    app.toast('Profile updated (demo)', 'user');
+  };
+
+  return (
+    <div className="profile-grid">
+      <div className="stack" style={{ gap: 16 }}>
+        <div className="profile-hero reveal">
+          <div className="avatar">{initials}</div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <h2 style={{ fontSize: '1.06rem', fontWeight: 800, letterSpacing: '-.01em' }}>{app.profile.name}</h2>
+            <p className="row" style={{ gap: 6, fontSize: '.78rem', color: '#6b5b53', marginTop: 3 }}>
+              <Icon name="mail" size={13} /> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{app.profile.email}</span>
+            </p>
+            <p className="row" style={{ gap: 6, fontSize: '.78rem', color: '#6b5b53', marginTop: 2 }}>
+              <Icon name="phone" size={13} /> {app.profile.phone}
+            </p>
+          </div>
+        </div>
+
+        {editing ? (
+          <div className="card-p reveal form">
+            <div className="field">
+              <label htmlFor="pf-name">Full name</label>
+              <input id="pf-name" className="input" value={draft.name} onChange={e => setDraft(Object.assign({}, draft, { name: e.target.value }))} />
+            </div>
+            <div className="field">
+              <label htmlFor="pf-email">Email</label>
+              <input id="pf-email" className="input" type="email" value={draft.email} onChange={e => setDraft(Object.assign({}, draft, { email: e.target.value }))} />
+            </div>
+            <div className="field">
+              <label htmlFor="pf-phone">Phone</label>
+              <input id="pf-phone" className="input" value={draft.phone} onChange={e => setDraft(Object.assign({}, draft, { phone: e.target.value }))} />
+            </div>
+            <div className="row" style={{ gap: 10 }}>
+              <button className="btn btn-primary" style={{ flex: 1 }} onClick={save}>Save changes</button>
+              <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => { setDraft(app.profile); setEditing(false); }}>Cancel</button>
+            </div>
+          </div>
+        ) : (
+          <div className="row reveal" style={{ gap: 10 }}>
+            <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => { setDraft(app.profile); setEditing(true); }}>
+              <Icon name="edit" size={16} /> Edit Profile
+            </button>
+            <button className="btn btn-ghost" aria-label="Sign out (demo)" onClick={() => setModal('logout')}>
+              <Icon name="logout" size={17} />
+            </button>
+          </div>
+        )}
+
+        <div className="free-pill reveal" style={{ alignSelf: 'flex-start' }}>
+          <Icon name="shield" size={14} /> Demo account — no real authentication
+        </div>
+
+        <div className="row reveal" style={{ gap: 10 }}>
+          <div className="card-p" style={{ flex: 1, textAlign: 'center' }}>
+            <p style={{ fontSize: '1.25rem', fontWeight: 800 }}>{app.cartCount}</p>
+            <p style={{ fontSize: '.74rem', color: 'var(--muted)' }}>In bag</p>
+          </div>
+          <div className="card-p" style={{ flex: 1, textAlign: 'center' }}>
+            <p style={{ fontSize: '1.25rem', fontWeight: 800 }}>{app.wishlist.length}</p>
+            <p style={{ fontSize: '.74rem', color: 'var(--muted)' }}>Wishlist</p>
+          </div>
+          <div className="card-p" style={{ flex: 1, textAlign: 'center' }}>
+            <p style={{ fontSize: '1.25rem', fontWeight: 800 }}>{(app.orders || SAMPLE_ORDERS).length}</p>
+            <p style={{ fontSize: '.74rem', color: 'var(--muted)' }}>Orders</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="card-p reveal" style={{ padding: 0, overflow: 'hidden' }}>
+        {PROFILE_LINKS.map(item => (
+          <button key={item.key} className="list-row"
+            onClick={() => (item.view ? navigate(item.view) : setModal(item.action))}>
+            <span className="list-ico"><Icon name={item.icon} size={19} /></span>
+            <span style={{ flex: 1 }}>
+              <span className="list-name" style={{ display: 'block' }}>{item.label}</span>
+              <span className="list-desc">{item.desc}</span>
+            </span>
+            <Icon name="right" size={17} className="chev" />
+          </button>
+        ))}
+        <button className="list-row" onClick={() => setModal('logout')} style={{ color: 'var(--danger)' }}>
+          <span className="list-ico" style={{ background: '#fdeceb', color: 'var(--danger)' }}><Icon name="logout" size={19} /></span>
+          <span style={{ flex: 1 }}>
+            <span className="list-name" style={{ display: 'block' }}>Logout</span>
+            <span className="list-desc">Simulated sign out of the demo account</span>
+          </span>
+          <Icon name="right" size={17} className="chev" />
+        </button>
+        {app.isAdmin && (
+          <button className="list-row" onClick={() => { window.location.href = 'admin.html'; }} style={{ color: 'var(--accent)' }}>
+            <span className="list-ico" style={{ background: 'rgba(244,119,80,.14)', color: 'var(--accent)' }}><Icon name="sliders" size={19} /></span>
+            <span style={{ flex: 1 }}>
+              <span className="list-name" style={{ display: 'block' }}>Admin Panel</span>
+              <span className="list-desc">Manage products, brands, orders &amp; users</span>
+            </span>
+            <Icon name="right" size={17} className="chev" />
+          </button>
+        )}
+      </div>
+
+      {modal === 'logout' && (
+        <Modal title="Log out of demo account?"
+          onClose={() => setModal(null)}
+          footer={<>
+            <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => setModal(null)}>Stay signed in</button>
+            <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => { setModal(null); app.toast('Signed out (simulated)', 'logout'); }}>Log out</button>
+          </>}>
+          <p>This storefront is a front-end demo with a mock profile — no real account exists, so signing out only shows a confirmation toast.</p>
+        </Modal>
+      )}
+      {modal === 'addresses' && (
+        <Modal title="Shopping addresses" onClose={() => setModal(null)}>
+          <div className="stack" style={{ gap: 10, marginTop: 10 }}>
+            <div className="card-p">
+              <p style={{ fontSize: '.85rem', fontWeight: 700 }}>Home · Default</p>
+              <p style={{ fontSize: '.8rem', color: 'var(--muted)', marginTop: 3 }}>221B Baker Street, {app.profile.city}, CA 94118</p>
+            </div>
+            <div className="card-p">
+              <p style={{ fontSize: '.85rem', fontWeight: 700 }}>Work</p>
+              <p style={{ fontSize: '.8rem', color: 'var(--muted)', marginTop: 3 }}>500 Market St, {app.profile.city}, CA 94105</p>
+            </div>
+            <p style={{ fontSize: '.75rem', color: 'var(--muted)' }}>Sample addresses for the demo — no account data is stored on a server.</p>
+          </div>
+        </Modal>
+      )}
+      {modal === 'payments' && (
+        <Modal title="Payment methods" onClose={() => setModal(null)}>
+          <div className="stack" style={{ gap: 10, marginTop: 10 }}>
+            <div className="pay on"><span className="pay-ico"><Icon name="card" size={19} /></span><span><span className="pay-name">•••• 4242</span><span className="pay-desc">Visa · sample card</span></span></div>
+            <div className="pay"><span className="pay-ico"><Icon name="wallet" size={19} /></span><span><span className="pay-name">UPI</span><span className="pay-desc">ady***@upi (demo)</span></span></div>
+            <div className="demo-note"><Icon name="shield" size={16} style={{ flex: 'none', marginTop: 1 }} /> Payment methods shown here are simulated. No gateway is connected and no card data is stored.</div>
+          </div>
+        </Modal>
+      )}
+      {modal === 'settings' && (
+        <Modal title="Settings" onClose={() => setModal(null)}>
+          <div className="stack" style={{ gap: 10, marginTop: 10 }}>
+            {['Order updates on WhatsApp', 'New drop alerts', 'Personalised recommendations'].map((t, i) => (
+              <label key={t} className="pay" style={{ cursor: 'pointer' }}>
+                <span className="pay-ico"><Icon name="sliders" size={18} /></span>
+                <span className="pay-name" style={{ flex: 1 }}>{t}</span>
+                <input type="checkbox" defaultChecked={i !== 2} style={{ width: 20, height: 20, accentColor: '#F47750' }} />
+              </label>
+            ))}
+            <p style={{ fontSize: '.75rem', color: 'var(--muted)' }}>Preferences are stored locally in your browser.</p>
+          </div>
+        </Modal>
+      )}
+      {modal === 'help' && (
+        <Modal title="Help and Support" onClose={() => setModal(null)}>
+          <div className="stack" style={{ gap: 10, marginTop: 10 }}>
+            {['Where is my order?', 'How do I return an item?', 'Can I change my delivery address?', 'Is checkout real?'].map(q => (
+              <details key={q} className="card-p">
+                <summary style={{ cursor: 'pointer', fontSize: '.85rem', fontWeight: 700 }}>{q}</summary>
+                <p style={{ fontSize: '.8rem', color: 'var(--muted)', marginTop: 8 }}>
+                  This is a demo storefront. Order tracking, returns and payments are simulated for design purposes only.
+                </p>
+              </details>
+            ))}
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================
+   ORDERS
+   ========================================================= */
+const STATUS_CLASS = { Processing: 'st-processing', Shipped: 'st-shipped', Delivered: 'st-delivered', Cancelled: 'st-cancelled' };
+
+function OrdersPage({ navigate, onBack }) {
+  const app = useApp();
+  const orders = app.orders && app.orders.length ? app.orders : SAMPLE_ORDERS;
+  const [detail, setDetail] = useState(null);
+  const fmt = iso => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  return (
+    <div className="wrap">
+      <div className="stack" style={{ gap: 12 }}>
+        {orders.map((o, i) => (
+          <div className="order reveal" key={o.id} style={{ transitionDelay: Math.min(i * 60, 300) + 'ms' }}>
+            <div className="order-top">
+              <span className="order-id">Order #{o.id}</span>
+              <span className={'status ' + (STATUS_CLASS[o.status] || 'st-processing')}>{o.status}</span>
+            </div>
+            <div className="order-thumbs">
+              {o.items.map((it, k) => {
+                const p = PRODUCT_MAP[it.id];
+                return p ? <Img key={k} src={p.images[0]} alt={p.name} /> : null;
+              })}
+            </div>
+            <div className="order-foot">
+              <span className="row" style={{ gap: 5 }}><Icon name="refresh" size={13} /> {fmt(o.date)}</span>
+              <span className="row" style={{ gap: 5 }}><Icon name="bag" size={13} /> {o.items.reduce((s, x) => s + x.qty, 0)} item(s)</span>
+              <span className="row" style={{ gap: 5 }}><Icon name="wallet" size={13} /> {o.payment}</span>
+              <span className="spacer" />
+              <span className="price" style={{ fontSize: '.95rem' }}>{money(o.total)}</span>
+            </div>
+            <div className="row" style={{ gap: 10 }}>
+              <button className="btn btn-ghost" style={{ flex: 1, height: 44 }} onClick={() => setDetail(o)}>View Details</button>
+              <button className="btn btn-dark" style={{ flex: 1, height: 44 }}
+                onClick={() => { o.items.forEach(it => { const p = PRODUCT_MAP[it.id]; if (p) app.addToCart(p, { size: it.size, color: it.color, qty: it.qty, price: it.price }); }); navigate('cart'); }}>
+                Reorder
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {detail && (
+        <Modal title={'Order #' + detail.id} onClose={() => setDetail(null)}>
+          <div className="stack" style={{ gap: 10, marginTop: 8 }}>
+            <div className="row">
+              <span className={'status ' + (STATUS_CLASS[detail.status] || 'st-processing')}>{detail.status}</span>
+              <span className="spacer" />
+              <span style={{ fontSize: '.8rem', color: 'var(--muted)' }}>{fmt(detail.date)}</span>
+            </div>
+            {detail.items.map((it, k) => {
+              const p = PRODUCT_MAP[it.id];
+              if (!p) return null;
+              return (
+                <div className="line-item" key={k} style={{ animation: 'none' }}>
+                  <Img src={p.images[0]} alt={p.name} />
+                  <div className="li-body">
+                    <h3 className="li-name">{p.name}</h3>
+                    <p className="li-meta">Size {it.size} · Qty {it.qty} · {p.brand}</p>
+                    <div className="li-foot"><span className="price" style={{ fontSize: '.9rem' }}>{money((Number(it.price) > 0 ? Number(it.price) : p.price) * it.qty)}</span></div>
+                  </div>
+                </div>
+              );
+            })}
+            <div className="sum-row"><span>Payment</span><span>{detail.payment}</span></div>
+            {detail.address && <div className="sum-row"><span>Deliver to</span><span style={{ textAlign: 'right', maxWidth: 220 }}>{detail.address}</span></div>}
+            <div className="sum-total"><span>Total</span><span>{money(detail.total)}</span></div>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================
+   CHECKOUT
+   ========================================================= */
+const PAYMENTS = [
+  { id: 'cod', name: 'Cash on Delivery', desc: 'Pay in cash when your order arrives', icon: 'wallet' },
+  { id: 'upi', name: 'UPI (simulated)', desc: 'Demo only — no payment request is created', icon: 'phone' },
+  { id: 'card', name: 'Card (simulated)', desc: 'Demo only — no gateway is connected', icon: 'card' }
+];
+
+const ADDRESS_FIELDS = [
+  { key: 'name', label: 'Full name', ph: 'Aditi Sharma', type: 'text' },
+  { key: 'phone', label: 'Phone number', ph: '+1 415 555 0134', type: 'tel' },
+  { key: 'email', label: 'Email address', ph: 'you@example.com', type: 'email' },
+  { key: 'address', label: 'Street address', ph: '221B Baker Street', type: 'text' },
+  { key: 'city', label: 'City', ph: 'San Francisco', type: 'text' },
+  { key: 'state', label: 'State', ph: 'California', type: 'text' },
+  { key: 'zip', label: 'ZIP code', ph: '94118', type: 'text' }
+];
+
+/* ---- satellite location map: fetch current location, zoom locked ---- */
+function LocationMap({ onPick }) {
+  const boxRef = useRef(null);
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+  const pickRef = useRef(onPick);
+  pickRef.current = onPick;
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState('');
+
+  const dropPin = (lat, lng) => {
+    const map = mapRef.current;
+    if (!map || typeof L === 'undefined') return;
+    if (markerRef.current) markerRef.current.setLatLng([lat, lng]);
+    else markerRef.current = L.circleMarker([lat, lng], {
+      radius: 8, color: '#fff', weight: 3, fillColor: '#F47750', fillOpacity: 1
+    }).addTo(map);
+    map.setView([lat, lng], Math.max(map.getZoom(), 16));
+    setStatus('Location locked — fetching address…');
+    fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng)
+      .then(r => r.json())
+      .then(d => {
+        const a = (d && d.address) || {};
+        const road = a.road || a.pedestrian || a.neighbourhood || a.suburb || a.quarter || '';
+        const house = a.house_number || '';
+        pickRef.current({
+          lat: lat, lng: lng,
+          address: (house + ' ' + road).trim() || (d && d.display_name) || (lat.toFixed(5) + ', ' + lng.toFixed(5)),
+          city: a.city || a.town || a.village || '',
+          state: a.state || '',
+          zip: a.postcode || ''
+        });
+        setStatus('Address filled from map ✓ — edit if needed');
+      })
+      .catch(() => {
+        pickRef.current({
+          lat: lat, lng: lng,
+          address: lat.toFixed(5) + ', ' + lng.toFixed(5), city: '', state: '', zip: ''
+        });
+        setStatus('Pin set — reverse lookup failed, please type the address');
+      });
+  };
+
+  const locate = () => {
+    if (!navigator.geolocation) { setStatus('Geolocation is not supported by this browser'); return; }
+    setBusy(true); setStatus('Fetching your current location…');
+    navigator.geolocation.getCurrentPosition(pos => {
+      setBusy(false);
+      setStatus('Location found');
+      dropPin(pos.coords.latitude, pos.coords.longitude);
+    }, err => {
+      setBusy(false);
+      setStatus('Could not get location: ' + (err && err.message || 'denied') + ' — tap the map instead');
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+  };
+
+  useEffect(() => {
+    if (!boxRef.current || mapRef.current) return;
+    if (typeof L === 'undefined') { setStatus('Map library failed to load — type the address manually'); return; }
+    const map = L.map(boxRef.current, {
+      center: [20.59, 78.96], zoom: 5,
+      zoomControl: false, attributionControl: true,
+      scrollWheelZoom: false, doubleClickZoom: false, touchZoom: false,
+      boxZoom: false, keyboard: false, dragging: true
+    });
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 18, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics'
+    }).addTo(map);
+    map.on('click', e => dropPin(e.latlng.lat, e.latlng.lng));
+    mapRef.current = map;
+    const t = window.setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 250);
+    return () => {
+      window.clearTimeout(t);
+      try { map.remove(); } catch (e) {}
+      mapRef.current = null; markerRef.current = null;
+    };
+  }, []);
+
+  return (
+    <div>
+      <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
+        <button type="button" className="btn btn-primary" style={{ height: 44 }} onClick={locate} disabled={busy}>
+          <Icon name="pin" size={16} /> {busy ? 'Locating…' : 'Use my current location'}
+        </button>
+        <span className="sec-sub" style={{ fontSize: '.76rem' }}>{status || 'Satellite view · zoom locked — tap the map to drop a pin'}</span>
+      </div>
+      <div className="loc-map" ref={boxRef} role="application" aria-label="Satellite location map (zoom disabled)">
+        {typeof L === 'undefined' && <span className="loc-pin">Map unavailable</span>}
+      </div>
+      <p className="hint" style={{ fontSize: '.72rem', color: 'var(--muted)', marginTop: 7 }}>
+        Current location se address auto-fill hota hai — chaaho to niche manually edit kar sakte ho.
+      </p>
+    </div>
+  );
+}
+
+function CheckoutPage({ navigate, onBack, onPlaced }) {
+  const app = useApp();
+  const { cartLines, subtotal, shipping, total, savings } = app;
+  const [form, setForm] = useState({
+    name: app.profile.name, phone: app.profile.phone, email: app.profile.email,
+    address: '', city: app.profile.city, state: '', zip: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [payment, setPayment] = useState('upi');
+  const [placing, setPlacing] = useState(false);
+  const [geo, setGeo] = useState(null);
+
+  if (!cartLines.length && !placing) {
+    return (
+      <div className="empty">
+        <div className="empty-art"><Icon name="box" size={38} stroke={1.5} /></div>
+        <h3>Nothing to check out</h3>
+        <p>Add a few pieces to your bag first, then come back to place your demo order.</p>
+        <button className="btn btn-primary" onClick={() => navigate('home')}>Browse products</button>
+      </div>
+    );
+  }
+
+  const set = (k, v) => { setForm(f => Object.assign({}, f, { [k]: v })); setErrors(e => Object.assign({}, e, { [k]: null })); };
+
+  const validate = () => {
+    const errs = {};
+    ADDRESS_FIELDS.forEach(f => {
+      const v = (form[f.key] || '').trim();
+      if (!v) errs[f.key] = f.label + ' is required';
+      else if (f.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) errs[f.key] = 'Enter a valid email address';
+      else if (f.key === 'phone' && v.replace(/\D/g, '').length < 7) errs[f.key] = 'Enter a valid phone number';
+    });
+    if (!cartLines.length) errs.cart = 'Your bag is empty';
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const submit = e => {
+    e.preventDefault();
+    if (!validate()) {
+      app.toast('Please check the highlighted fields', 'help');
+      return;
+    }
+    setPlacing(true);
+    window.setTimeout(() => {
+      const order = app.placeOrder({
+        items: cartLines.map(l => ({ id: l.id, qty: l.qty, size: l.size, color: l.color, price: l.unitPrice })),
+        total,
+        payment: (PAYMENTS.find(p => p.id === payment) || {}).name,
+        address: form.address + ', ' + form.city + ', ' + form.state + ' ' + form.zip,
+        customerName: form.name,
+        customerEmail: form.email,
+        customerPhone: form.phone,
+        geo: geo
+      });
+      app.clearCart();
+      onPlaced(order);
+    }, 900);
+  };
+
+  return (
+    <form className="split" onSubmit={submit} noValidate>
+      <div className="stack" style={{ gap: 18 }}>
+        <section className="card-p reveal">
+          <h2 className="sec-title" style={{ fontSize: '.98rem', marginBottom: 4 }}>Contact details</h2>
+          <p className="sec-sub" style={{ marginBottom: 12 }}>Demo checkout — please use any details.</p>
+          <div className="form-2">
+            <div className="field">
+              <label htmlFor="ck-name">Full name</label>
+              <input id="ck-name" className={'input' + (errors.name ? ' err' : '')} value={form.name} autoComplete="name"
+                onChange={e => set('name', e.target.value)} aria-invalid={!!errors.name} />
+              {errors.name && <span className="err-msg">{errors.name}</span>}
+            </div>
+            <div className="field">
+              <label htmlFor="ck-phone">Phone</label>
+              <input id="ck-phone" type="tel" className={'input' + (errors.phone ? ' err' : '')} value={form.phone} autoComplete="tel"
+                onChange={e => set('phone', e.target.value)} aria-invalid={!!errors.phone} />
+              {errors.phone && <span className="err-msg">{errors.phone}</span>}
+            </div>
+          </div>
+          <div className="field" style={{ marginTop: 13 }}>
+            <label htmlFor="ck-email">Email</label>
+            <input id="ck-email" type="email" className={'input' + (errors.email ? ' err' : '')} value={form.email} autoComplete="email"
+              onChange={e => set('email', e.target.value)} aria-invalid={!!errors.email} />
+            {errors.email && <span className="err-msg">{errors.email}</span>}
+          </div>
+        </section>
+
+        <section className="card-p reveal">
+          <h2 className="sec-title" style={{ fontSize: '.98rem', marginBottom: 4 }}>Delivery address</h2>
+          <p className="sec-sub" style={{ marginBottom: 12 }}>Fetch current location on the satellite map — address auto-fills.</p>
+          <LocationMap onPick={loc => {
+            setGeo({ lat: loc.lat, lng: loc.lng });
+            if (loc.address) set('address', loc.address);
+            if (loc.city) set('city', loc.city);
+            if (loc.state) set('state', loc.state);
+            if (loc.zip) set('zip', loc.zip);
+            app.toast('Address filled from your location', 'pin');
+          }} />
+          <div className="field" style={{ marginTop: 14 }}>
+            <label htmlFor="ck-address">Street address</label>
+            <input id="ck-address" className={'input' + (errors.address ? ' err' : '')} value={form.address} autoComplete="street-address"
+              onChange={e => set('address', e.target.value)} aria-invalid={!!errors.address} />
+            {errors.address && <span className="err-msg">{errors.address}</span>}
+          </div>
+          <div className="form-2" style={{ marginTop: 13 }}>
+            <div className="field">
+              <label htmlFor="ck-city">City</label>
+              <input id="ck-city" className={'input' + (errors.city ? ' err' : '')} value={form.city} autoComplete="address-level2"
+                onChange={e => set('city', e.target.value)} aria-invalid={!!errors.city} />
+              {errors.city && <span className="err-msg">{errors.city}</span>}
+            </div>
+            <div className="field">
+              <label htmlFor="ck-state">State</label>
+              <input id="ck-state" className={'input' + (errors.state ? ' err' : '')} value={form.state} autoComplete="address-level1"
+                onChange={e => set('state', e.target.value)} aria-invalid={!!errors.state} />
+              {errors.state && <span className="err-msg">{errors.state}</span>}
+            </div>
+          </div>
+          <div className="field" style={{ marginTop: 13 }}>
+            <label htmlFor="ck-zip">ZIP code</label>
+            <input id="ck-zip" className={'input' + (errors.zip ? ' err' : '')} value={form.zip} autoComplete="postal-code"
+              onChange={e => set('zip', e.target.value)} aria-invalid={!!errors.zip} />
+            {errors.zip && <span className="err-msg">{errors.zip}</span>}
+          </div>
+        </section>
+
+        <section className="stack reveal" style={{ gap: 10 }}>
+          <h2 className="sec-title" style={{ fontSize: '.98rem' }}>Payment method</h2>
+          {PAYMENTS.map(p => (
+            <button type="button" key={p.id} className={'pay' + (payment === p.id ? ' on' : '')}
+              aria-pressed={payment === p.id} onClick={() => setPayment(p.id)}>
+              <span className="pay-ico"><Icon name={p.icon} size={19} /></span>
+              <span style={{ flex: 1 }}>
+                <span className="pay-name" style={{ display: 'block' }}>{p.name}</span>
+                <span className="pay-desc">{p.desc}</span>
+              </span>
+              <span className="radio" aria-hidden="true" />
+            </button>
+          ))}
+          <div className="demo-note">
+            <Icon name="shield" size={16} style={{ flex: 'none', marginTop: 1 }} />
+            <span><strong>Demo mode.</strong> AURA does not process real payments and no payment gateway is connected. Placing an order only creates a sample order in your browser.</span>
+          </div>
+        </section>
+      </div>
+
+      <aside>
+        <OrderSummary subtotal={subtotal} shipping={shipping} total={total} savings={savings} title="Your order"
+          footer={<div className="stack" style={{ gap: 10, marginTop: 16 }}>
+            <button type="submit" className="btn btn-primary btn-block" disabled={placing}>
+              {placing ? <><span className="dots-load"><i></i><i></i><i></i></span> Placing order…</> : <>Place Order · {money(total)}</>}
+            </button>
+            <button type="button" className="btn btn-ghost btn-block" onClick={() => navigate('cart')}>Back to bag</button>
+          </div>}>
+          <div className="stack" style={{ gap: 11, margin: '10px 0 14px', paddingBottom: 14, borderBottom: '1px dashed var(--line)' }}>
+            {cartLines.map(l => (
+              <div className="row" key={l.key} style={{ gap: 11, alignItems: 'flex-start' }}>
+                <div style={{ position: 'relative', flex: 'none' }}>
+                  <Img src={l.product.images[0]} alt={l.product.name} style={{ width: 52, height: 66, borderRadius: 10, objectFit: 'cover' }} />
+                  <span style={{ position: 'absolute', top: -7, right: -7, background: 'var(--charcoal)', color: '#fff', borderRadius: 999, minWidth: 20, height: 20, display: 'grid', placeItems: 'center', fontSize: '.68rem', fontWeight: 700 }}>{l.qty}</span>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: '.82rem', fontWeight: 600, lineHeight: 1.3 }}>{l.product.name}</p>
+                  <p className="li-meta">Size {l.size}</p>
+                </div>
+                <span style={{ fontSize: '.85rem', fontWeight: 700 }}>{money(l.lineTotal)}</span>
+              </div>
+            ))}
+          </div>
+        </OrderSummary>
+      </aside>
+    </form>
+  );
+}
+
+function ConfirmationPage({ order, navigate }) {
+  const eta = useMemo(() => {
+    const d = new Date(Date.now() + 4 * 24 * 3600 * 1000);
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  }, []);
+  if (!order) {
+    return (
+      <div className="empty">
+        <h3>No recent order</h3>
+        <p>Once you place a demo order, the confirmation will appear here.</p>
+        <button className="btn btn-primary" onClick={() => navigate('home')}>Start shopping</button>
+      </div>
+    );
+  }
+  return (
+    <div className="confirm">
+      <svg className="confirm-ring" viewBox="0 0 120 120" role="img" aria-label="Order placed successfully">
+        <circle className="trk" cx="60" cy="60" r="52" />
+        <circle className="bar" cx="60" cy="60" r="52" transform="rotate(-90 60 60)" />
+        <path className="confirm-tick" d="M38 61l15 15 30-32" />
+      </svg>
+      <h2>Order placed successfully!</h2>
+      <p>Thanks for shopping with AURA. This is a demo confirmation — no payment was taken and no goods will ship.</p>
+      <div className="order-box">
+        <div className="sum-row"><span>Order number</span><span style={{ fontWeight: 700 }}>#{order.id}</span></div>
+        <div className="sum-row"><span>Order date</span><span>{new Date(order.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></div>
+        <div className="sum-row"><span>Payment method</span><span>{order.payment}</span></div>
+        <div className="sum-row"><span>Items</span><span>{order.items.reduce((s, i) => s + i.qty, 0)}</span></div>
+        <div className="sum-row"><span>Estimated delivery (demo)</span><span>{eta}</span></div>
+        <div className="sum-total"><span>Total paid (demo)</span><span>{money(order.total)}</span></div>
+      </div>
+      <div className="row" style={{ gap: 10, marginTop: 18, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <button className="btn btn-dark" onClick={() => navigate('orders')}>View My Orders</button>
+        <button className="btn btn-ghost" onClick={() => navigate('home')}>Continue Shopping</button>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   APP
+   ========================================================= */
+const PAGE_META = {
+  product: { title: 'Product', back: true },
+  cart: { title: 'Shopping Bag', back: true },
+  wishlist: { title: 'My Wishlist', back: true },
+  search: { title: 'Search & Filter', back: true },
+  collections: { title: 'Collections', back: true },
+  collection: { title: 'Collection', back: true },
+  profile: { title: 'My Profile', back: true },
+  orders: { title: 'My Orders', back: true },
+  checkout: { title: 'Checkout', back: true },
+  confirmation: { title: 'Order Confirmed', back: false }
+};
+
+function App() {
+  const [route, setRoute] = useState({ view: 'home', params: {} });
+  const [lastOrder, setLastOrder] = useState(null);
+  const [catalogVersion, setCatalogVersion] = useState(0);
+  const isDesktop = useMediaQuery('(min-width:1024px)');
+
+  /* load catalogue from Firestore (falls back to demo data), then keep it live */
+  useEffect(() => {
+    renderApp = () => setCatalogVersion(v => v + 1);
+    let alive = true;
+    loadCatalog().then(() => { if (alive) setCatalogVersion(v => v + 1); });
+    return () => { alive = false; renderApp = function () {}; };
+  }, []);
+
+  const routeRef = useRef(route);
+  routeRef.current = route;
+  const stackRef = useRef([]);
+
+  const navigate = useCallback((view, paramKeyOrParams, maybeId) => {
+    const params = (typeof paramKeyOrParams === 'string')
+      ? { [paramKeyOrParams]: maybeId }
+      : (paramKeyOrParams || {});
+    const cur = routeRef.current;
+    routeRef.current = { view, params };
+    setRoute({ view, params });
+    if (cur.view !== view) stackRef.current = stackRef.current.concat([cur]);
+  }, []);
+
+  const goBack = useCallback(() => {
+    const stack = stackRef.current;
+    if (!stack.length) return;
+    const last = stack[stack.length - 1];
+    stackRef.current = stack.slice(0, -1);
+    routeRef.current = last;
+    setRoute(last);
+  }, []);
+
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'auto' }); }, [route.view, route.params && route.params.id]);
+
+  const revealRef = useReveal();
+  const routeKey = route.view + ':' + ((route.params && (route.params.id || route.params.q || route.params.cat || route.params.brand)) || '');
+
+  const openProduct = useCallback(id => navigate('product', { id }), [navigate]);
+
+  let page = null;
+  switch (route.view) {
+    case 'home':
+      page = <HomePage navigate={navigate} params={route.params} />;
+      break;
+    case 'product': {
+      const p = PRODUCT_MAP[route.params.id];
+      page = p
+        ? <ProductDetails product={p} navigate={navigate} />
+        : <div className="empty"><h3>Product not found</h3><p>This item may have been removed from the catalogue.</p>
+          <button className="btn btn-primary" onClick={() => navigate('home')}>Back to home</button></div>;
+      break;
+    }
+    case 'cart': page = <CartPage navigate={navigate} />; break;
+    case 'wishlist': page = <WishlistPage navigate={navigate} />; break;
+    case 'search': page = <SearchPage navigate={navigate} params={route.params} />; break;
+    case 'collections': page = <CollectionsPage navigate={navigate} params={null} />; break;
+    case 'collection': page = <CollectionsPage navigate={navigate} params={route.params} />; break;
+    case 'profile': page = <ProfilePage navigate={navigate} onBack={goBack} />; break;
+    case 'orders': page = <OrdersPage navigate={navigate} onBack={goBack} />; break;
+    case 'checkout': page = <CheckoutPage navigate={navigate} onBack={goBack} onPlaced={order => { setLastOrder(order); navigate('confirmation'); }} />; break;
+    case 'confirmation': page = <ConfirmationPage order={lastOrder} navigate={navigate} />; break;
+    default: page = <HomePage navigate={navigate} params={route.params} />;
+  }
+
+  const meta = PAGE_META[route.view] || null;
+  const showHead = !!meta && route.view !== 'home';
+
+  return (
+    <AppProvider catalogVersion={catalogVersion}>
+      <div className="app">
+        <Header route={route} navigate={navigate} />
+        <main className="main" ref={revealRef}>
+          {showHead && (
+            <div className="page-head">
+              <button className="back-btn" onClick={goBack} aria-label="Go back"><Icon name="left" size={18} /></button>
+              <h1 className="page-title" style={{ flex: 1 }}>{meta.title}</h1>
+              {route.view === 'cart' && <CartHeadCount />}
+            </div>
+          )}
+          <div className="page" key={routeKey}>{page}</div>
+        </main>
+        {!isDesktop && <BottomNav route={route} navigate={navigate} />}
+        <Toasts />
+      </div>
+    </AppProvider>
+  );
+}
+
+function CartHeadCount() {
+  const { cartCount } = useApp();
+  const n = useCountUp(cartCount);
+  if (!n) return null;
+  return <span className="free-pill"><Icon name="bag" size={14} /> {n} item{n === 1 ? '' : 's'}</span>;
+}
+
+const rootEl = document.getElementById('root');
+ReactDOM.createRoot(rootEl).render(<App />);
+</script>
+<script>
+window.onerror=function(m,s,l){document.title='ERR::'+m+'@'+l;return false};
+document.title='S0';
+(function(){
+  var PRICES={'XS':555,'S':666,'M':777,'L':888,'XL':999,'Free Size':444};
+  var step=0, expected=null, chosen=null;
+  var t=setInterval(function(){
+    try{
+      if(step===0){
+        var v=document.querySelector('button[aria-label^="View "]');
+        if(v){ v.click(); step=1; document.title='S1_PDP'; }
+      } else if(step===1){
+        var row=document.querySelector('.opt-row');
+        if(row){
+          var sb=row.querySelector('button');
+          if(sb){
+            chosen=sb.textContent.trim(); expected=PRICES[chosen];
+            sb.click(); step=2; document.title='S2_SIZE_'+chosen+'_'+expected;
+          }
+        } else {
+          /* product may have no sizes row -> still proceed */
+          chosen='(none)'; expected=null; step=2.5;
+        }
+      } else if(step===2.5){ step=2; }
+      if(step===2 && expected!=null){
+        var pr=document.querySelector('.pdp-price .price');
+        if(pr && pr.textContent.indexOf(String(expected))>-1){
+          var add=[].slice.call(document.querySelectorAll('button')).filter(function(x){return /^Add to Cart$/.test(x.textContent.trim())});
+          if(add.length){ add[0].click(); step=3; document.title='S3_ADDED_'+chosen+'_'+expected; }
+        } else if(pr){ document.title='PRICE_SEEN_'+pr.textContent.trim()+'_EXPECT_'+expected; }
+      } else if(step===3){
+        var cj=localStorage.getItem('aura.cart.v1')||'NONE';
+        var holder=document.createElement('div'); holder.id='test-cart-json'; holder.textContent=cj; holder.style.display='none';
+        document.body.appendChild(holder);
+        var b=document.querySelector('button[aria-label^="Shopping bag"]');
+        if(b){ b.click(); step=4; document.title='S4_BAG'; }
+      } else if(step===4){
+        var ps=[].slice.call(document.querySelectorAll('button')).filter(function(x){return /Proceed to Checkout/.test(x.textContent)});
+        if(ps.length){ ps[0].click(); step=5; document.title='S5_CHECKOUT'; }
+      } else if(step===5){
+        if(document.querySelector('div.loc-map')){ step=6; clearInterval(t); document.title='READY_'+chosen+'_'+expected; }
+      }
+    }catch(e){ document.title='POLLERR::'+e.message; }
+  },400);
+  setTimeout(function(){ clearInterval(t); if(step<6) document.title='STALLED_AT_'+step; },40000);
+})();
+</script></body>
+</html>
